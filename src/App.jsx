@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from 'react-hot-toast';
 
 // Layouts
 import UserLayout from './layouts/UserLayout';
@@ -22,6 +23,10 @@ import Reservations from "./admin/Reservations";
 export default function App() {
   return (
       <BrowserRouter>
+      <Toaster 
+        position="top-right" 
+        reverseOrder={false} 
+      />
         <Routes>
 
           {/* User Routes */}
