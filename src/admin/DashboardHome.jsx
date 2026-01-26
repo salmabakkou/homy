@@ -3,8 +3,9 @@ import React from 'react';
 export default function DashboardHome() {
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-      <p className="text-gray-600 mt-4">Bienvenue dans le dashboard admin Homy</p>
+      <h1 className="text-3xl font-bold text-[#C3091C] mb-6 text-center">
+        Tableau de bord - Maisons
+      </h1>
     </div>
   );
 }
