@@ -3,392 +3,218 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addHouseThunk } from '../store/housesSlice';
 import { uploadImageToCloudinary } from '../services/cloudinary';
 import toast from 'react-hot-toast';
-import { FiUpload, FiHome, FiMapPin, FiDollarSign, FiMaximize2, FiX } from 'react-icons/fi';
-import { GiBed, GiShower } from 'react-icons/gi';
+import { FiUpload, FiHome, FiMapPin, FiDollarSign, FiMaximize, FiX, FiCalendar, FiPlus, FiEdit2 } from 'react-icons/fi';
+import { FaBed, FaBath } from 'react-icons/fa';
 
 export default function AddHouse() {
   const dispatch = useDispatch();
   const { loading } = useSelector((state) => state.houses);
 
-  // ------------------------------
-  // State du formulaire
-  // ------------------------------
   const [formData, setFormData] = useState({
-    title: '',
-    address: '',
-    price: '',
-    description: '',
-    rooms: '',
-    bathrooms: '',
-    surface: '',
-    type: 'Appartement',
-    status: 'available',
-    reservedFrom: '',
-    reservedTo: '',
+    title: '', address: '', price: '', description: '',
+    rooms: '', bathrooms: '', surface: '',
+    type: 'Appartement', status: 'available',
+    reservedFrom: '', reservedTo: '',
   });
 
-  // ------------------------------
-  // Erreurs
-  // ------------------------------
   const [errors, setErrors] = useState({});
+  const [mainImage, setMainImage] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
 
-  // ------------------------------
-  // Images
-  // ------------------------------
-  const [mainImage, setMainImage] = useState(null); // photo principale
-  const [imageFiles, setImageFiles] = useState([]); // images secondaires
-
-  // ------------------------------
-  // Champs du formulaire
-  // ------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (['price', 'rooms', 'bathrooms', 'surface'].includes(name)) {
-      if (Number(value) < 0) return;
-    }
-
-    if (name === 'status' && value === 'available') {
-      setFormData({ ...formData, status: value, reservedFrom: '', reservedTo: '' });
-      setErrors({ ...errors, reservedFrom: '', reservedTo: '' });
-      return;
-    }
-
     setFormData({ ...formData, [name]: value });
-    setErrors({ ...errors, [name]: '' });
+    if (errors[name]) setErrors({ ...errors, [name]: '' });
   };
 
-  // ------------------------------
-  // Images
-  // ------------------------------
   const handleMainImageChange = (e) => {
-    setMainImage(e.target.files[0]);
-    setErrors({ ...errors, mainImage: '' });
+    if (e.target.files[0]) {
+      setMainImage(e.target.files[0]);
+      setErrors({ ...errors, mainImage: '' });
+    }
   };
 
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    setImageFiles((prev) => [...prev, ...files]);
-    setErrors({ ...errors, image: '' });
-  };
-
-  const handleRemoveImage = (index) => {
-    setImageFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  // ------------------------------
-  // Validation
-  // ------------------------------
   const validate = () => {
     const newErrors = {};
-    if (!formData.title) newErrors.title = 'Le titre est requis';
-    if (!formData.address) newErrors.address = "L'adresse est requise";
-    if (!formData.price && formData.price !== 0) newErrors.price = 'Le prix est requis';
-    if (!formData.surface && formData.surface !== 0) newErrors.surface = 'La surface est requise';
-    if (!formData.rooms && formData.rooms !== 0) newErrors.rooms = 'Le nombre de chambres est requis';
-    if (!formData.bathrooms && formData.bathrooms !== 0) newErrors.bathrooms = 'Le nombre de salles de bain est requis';
-    if (!formData.description) newErrors.description = 'La description est requise';
-    if (!mainImage) newErrors.mainImage = 'Veuillez ajouter la photo principale';
-
+    if (!formData.title) newErrors.title = "Titre requis";
+    if (!formData.address) newErrors.address = "Adresse requise";
+    if (!formData.price) newErrors.price = "Prix requis";
+    if (!formData.surface) newErrors.surface = "Surface requise";
+    if (!formData.rooms) newErrors.rooms = "Lits requis";
+    if (!formData.bathrooms) newErrors.bathrooms = "Bains requis";
+    if (!formData.description) newErrors.description = "Description requise";
+    if (!mainImage) newErrors.mainImage = "Photo principale requise";
+    
     if (formData.status === 'reserved') {
-      if (!formData.reservedFrom) newErrors.reservedFrom = 'Date de début requise';
-      if (!formData.reservedTo) newErrors.reservedTo = 'Date de fin requise';
-      if (formData.reservedFrom && formData.reservedTo && formData.reservedFrom > formData.reservedTo) {
-        newErrors.reservedTo = 'La date de fin doit être après la date de début';
-      }
+      if (!formData.reservedFrom) newErrors.reservedFrom = "Début requis";
+      if (!formData.reservedTo) newErrors.reservedTo = "Fin requise";
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // ------------------------------
-  // Envoi formulaire
-  // ------------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-
     try {
       const uploadedImages = [];
-
-      // Upload image principale
       const mainImageUrl = await uploadImageToCloudinary(mainImage);
-
-      // Upload images secondaires
       for (const file of imageFiles) {
         const url = await uploadImageToCloudinary(file);
         uploadedImages.push(url);
       }
-
       const houseData = {
         ...formData,
-        price: Number(formData.price),
-        rooms: Number(formData.rooms),
-        bathrooms: Number(formData.bathrooms),
-        surface: Number(formData.surface),
-        mainImage: mainImageUrl,
-        images: uploadedImages,
+        price: Number(formData.price), rooms: Number(formData.rooms),
+        bathrooms: Number(formData.bathrooms), surface: Number(formData.surface),
+        mainImage: mainImageUrl, images: uploadedImages,
         reservedFrom: formData.status === 'reserved' ? formData.reservedFrom : null,
         reservedTo: formData.status === 'reserved' ? formData.reservedTo : null,
       };
-
       await dispatch(addHouseThunk(houseData)).unwrap();
-      toast.success('Maison ajoutée avec succès !');
-
-      // Reset formulaire
-      setFormData({
-        title: '',
-        address: '',
-        price: '',
-        description: '',
-        rooms: '',
-        bathrooms: '',
-        surface: '',
-        type: 'Appartement',
-        status: 'available',
-        reservedFrom: '',
-        reservedTo: '',
-      });
-      setMainImage(null);
-      setImageFiles([]);
-      setErrors({});
+      toast.success('Propriété publiée');
+      setFormData({ title: '', address: '', price: '', description: '', rooms: '', bathrooms: '', surface: '', type: 'Appartement', status: 'available', reservedFrom: '', reservedTo: '' });
+      setMainImage(null); setImageFiles([]);
     } catch (error) {
       console.error(error);
-      toast.error('Erreur lors de l’ajout');
+      toast.error("Erreur");
     }
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-2xl rounded-3xl mt-10">
-      <h1 className="text-3xl font-extrabold mb-6 text-center text-[#C3091C] tracking-wide">
-        Ajouter une Maison
-      </h1>
+    <div className="w-full md:max-w-4xl md:mx-auto bg-white md:border md:border-gray-100 md:shadow-sm md:rounded-[2.5rem] p-5 md:p-10 my-0 md:my-10">
+      
+      {/* Header */}
+      <div className="text-center mb-8 md:mb-10">
+        <span className="text-[#C3091C] font-serif text-3xl md:text-4xl tracking-[0.2em] uppercase">Homy</span>
+        <h1 className="text-[10px] text-gray-400 tracking-[0.3em] uppercase mt-1">Nouvelle Propriété</h1>
+      </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
-        {/* Titre */}
-        <div className="relative">
-          <FiHome className="absolute top-3 left-3 text-[#C3091C]" />
-          <input
-            type="text"
-            name="title"
-            placeholder="Titre"
-            value={formData.title}
-            onChange={handleChange}
-            className={`border p-3 pl-10 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-[#C3091C] shadow-sm ${errors.title ? 'border-red-500' : ''}`}
-          />
-          {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
-        </div>
-
-        {/* Adresse */}
-        <div className="relative">
-          <FiMapPin className="absolute top-3 left-3 text-[#C3091C]" />
-          <input
-            type="text"
-            name="address"
-            placeholder="Adresse"
-            value={formData.address}
-            onChange={handleChange}
-            className={`border p-3 pl-10 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-[#C3091C] shadow-sm ${errors.address ? 'border-red-500' : ''}`}
-          />
-          {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
-        </div>
-
-        {/* Prix et Surface */}
-        <div className="flex gap-4 flex-wrap">
-          <div className="relative flex-1 min-w-[120px]">
-            <FiDollarSign className="absolute top-3 left-3 text-[#C3091C]" />
-            <input
-              type="number"
-              name="price"
-              placeholder="Prix"
-              value={formData.price}
-              onChange={handleChange}
-              min={0}
-              className={`border p-3 pl-10 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-[#C3091C] shadow-sm ${errors.price ? 'border-red-500' : ''}`}
-            />
-            {errors.price && <p className="text-red-500 text-sm mt-1">{errors.price}</p>}
+      <form onSubmit={handleSubmit} className="space-y-5 md:space-y-6">
+        
+        {/* Ligne 1 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <div className="relative">
+            <FiHome className="absolute top-4 left-4 text-[#C3091C]" />
+            <input type="text" name="title" placeholder="Titre" value={formData.title} onChange={handleChange}
+              className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C]" />
+            {errors.title && <p className="text-red-500 text-[11px] mt-1 ml-2">{errors.title}</p>}
           </div>
-          <div className="relative flex-1 min-w-[120px]">
-            <FiMaximize2 className="absolute top-3 left-3 text-[#C3091C]" />
-            <input
-              type="number"
-              name="surface"
-              placeholder="Surface (m²)"
-              value={formData.surface}
-              onChange={handleChange}
-              min={0}
-              className={`border p-3 pl-10 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-[#C3091C] shadow-sm ${errors.surface ? 'border-red-500' : ''}`}
-            />
-            {errors.surface && <p className="text-red-500 text-sm mt-1">{errors.surface}</p>}
+          <div className="relative">
+            <FiMapPin className="absolute top-4 left-4 text-[#C3091C]" />
+            <input type="text" name="address" placeholder="Adresse" value={formData.address} onChange={handleChange}
+              className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C]" />
+            {errors.address && <p className="text-red-500 text-[11px] mt-1 ml-2">{errors.address}</p>}
           </div>
         </div>
 
-        {/* Chambres et Salles de bain */}
-        <div className="flex gap-4 flex-wrap">
-          <div className="relative flex-1 min-w-[120px]">
-            <GiBed className="absolute top-3 left-3 text-[#C3091C]" />
-            <input
-              type="number"
-              name="rooms"
-              placeholder="Chambres"
-              value={formData.rooms}
-              onChange={handleChange}
-              min={0}
-              className={`border p-3 pl-10 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-[#C3091C] shadow-sm ${errors.rooms ? 'border-red-500' : ''}`}
-            />
-            {errors.rooms && <p className="text-red-500 text-sm mt-1">{errors.rooms}</p>}
+        {/* Chiffres - 2 colonnes même sur petit mobile */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+          <div className="relative">
+            <FiDollarSign className="absolute top-4 left-4 text-[#C3091C] text-xs" />
+            <input type="number" name="price" placeholder="Prix" value={formData.price} onChange={handleChange}
+              className="w-full p-3.5 pl-10 bg-gray-50 rounded-2xl text-sm outline-none" />
+            {errors.price && <p className="text-red-500 text-[10px] mt-1">{errors.price}</p>}
           </div>
-          <div className="relative flex-1 min-w-[120px]">
-            <GiShower className="absolute top-3 left-3 text-[#C3091C]" />
-            <input
-              type="number"
-              name="bathrooms"
-              placeholder="Salles de bain"
-              value={formData.bathrooms}
-              onChange={handleChange}
-              min={0}
-              className={`border p-3 pl-10 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-[#C3091C] shadow-sm ${errors.bathrooms ? 'border-red-500' : ''}`}
-            />
-            {errors.bathrooms && <p className="text-red-500 text-sm mt-1">{errors.bathrooms}</p>}
+          <div className="relative">
+            <FiMaximize className="absolute top-4 left-4 text-[#C3091C] text-xs" />
+            <input type="number" name="surface" placeholder="m²" value={formData.surface} onChange={handleChange}
+              className="w-full p-3.5 pl-10 bg-gray-50 rounded-2xl text-sm outline-none" />
+            {errors.surface && <p className="text-red-500 text-[10px] mt-1">{errors.surface}</p>}
+          </div>
+          <div className="relative">
+            <FaBed className="absolute top-4 left-4 text-[#C3091C] text-xs" />
+            <input type="number" name="rooms" placeholder="Lits" value={formData.rooms} onChange={handleChange}
+              className="w-full p-3.5 pl-10 bg-gray-50 rounded-2xl text-sm outline-none" />
+            {errors.rooms && <p className="text-red-500 text-[10px] mt-1">{errors.rooms}</p>}
+          </div>
+          <div className="relative">
+            <FaBath className="absolute top-4 left-4 text-[#C3091C] text-xs" />
+            <input type="number" name="bathrooms" placeholder="Bains" value={formData.bathrooms} onChange={handleChange}
+              className="w-full p-3.5 pl-10 bg-gray-50 rounded-2xl text-sm outline-none" />
+            {errors.bathrooms && <p className="text-red-500 text-[10px] mt-1">{errors.bathrooms}</p>}
           </div>
         </div>
 
-        {/* Type et Status */}
-        <div className="flex gap-4 flex-wrap">
-          <select
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            className="border border-gray-300 p-3 rounded-xl flex-1 focus:outline-none focus:ring-2 focus:ring-[#C3091C] shadow-sm min-w-[120px]"
-          >
-            <option>Appartement</option>
-            <option>Villa</option>
-            <option>Maison</option>
-            <option>Studio</option>
+        {/* Type & Statut */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <select name="type" value={formData.type} onChange={handleChange} className="w-full p-4 bg-gray-50 rounded-2xl text-sm outline-none">
+            <option>Appartement</option><option>Villa</option><option>Maison</option><option>Studio</option>
           </select>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="border border-gray-300 p-3 rounded-xl flex-1 focus:outline-none focus:ring-2 focus:ring-[#C3091C] shadow-sm min-w-[120px]"
-          >
-            <option value="available">Disponible</option>
-            <option value="reserved">Réservé</option>
+          <select name="status" value={formData.status} onChange={handleChange} className="w-full p-4 bg-gray-50 rounded-2xl text-sm outline-none">
+            <option value="available">Disponible</option><option value="reserved">Réservé</option>
           </select>
         </div>
 
-        {/* Dates si réservé */}
+        {/* Dates */}
         {formData.status === 'reserved' && (
-          <div className="flex gap-4 flex-wrap">
-            <div className="flex-1 min-w-[120px]">
-              <label className="block text-gray-700 mb-1">De :</label>
-              <input
-                type="date"
-                name="reservedFrom"
-                value={formData.reservedFrom}
-                onChange={handleChange}
-                className={`border p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-[#C3091C] shadow-sm ${errors.reservedFrom ? 'border-red-500' : ''}`}
-              />
-              {errors.reservedFrom && <p className="text-red-500 text-sm mt-1">{errors.reservedFrom}</p>}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="relative">
+              <FiCalendar className="absolute top-4 left-4 text-[#C3091C] z-10 pointer-events-none" />
+              <input type="date" name="reservedFrom" value={formData.reservedFrom} onChange={handleChange}
+                className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C] [&::-webkit-calendar-picker-indicator]:opacity-0" />
+              {errors.reservedFrom && <p className="text-red-500 text-[10px] mt-1 ml-2">{errors.reservedFrom}</p>}
             </div>
-            <div className="flex-1 min-w-[120px]">
-              <label className="block text-gray-700 mb-1">À :</label>
-              <input
-                type="date"
-                name="reservedTo"
-                value={formData.reservedTo}
-                onChange={handleChange}
-                className={`border p-3 rounded-xl w-full focus:outline-none focus:ring-2 focus:ring-[#C3091C] shadow-sm ${errors.reservedTo ? 'border-red-500' : ''}`}
-              />
-              {errors.reservedTo && <p className="text-red-500 text-sm mt-1">{errors.reservedTo}</p>}
+            <div className="relative">
+              <FiCalendar className="absolute top-4 left-4 text-[#C3091C] z-10 pointer-events-none" />
+              <input type="date" name="reservedTo" value={formData.reservedTo} onChange={handleChange}
+                className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C] [&::-webkit-calendar-picker-indicator]:opacity-0" />
+              {errors.reservedTo && <p className="text-red-500 text-[10px] mt-1 ml-2">{errors.reservedTo}</p>}
             </div>
           </div>
         )}
+
+        {/* Photo de couverture */}
+        <div className="pt-2">
+          <p className="text-[11px] text-gray-400 mb-3 ml-2 uppercase tracking-[0.2em] font-medium">Couverture</p>
+          {!mainImage ? (
+            <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-100 p-10 md:p-14 rounded-3xl cursor-pointer bg-gray-50 hover:border-[#C3091C] transition-all">
+              <FiUpload className="text-[#C3091C] mb-3 text-2xl" />
+              <span className="text-[10px] text-gray-400 uppercase tracking-widest text-center">Ajouter l'image principale</span>
+              <input type="file" accept="image/*" onChange={handleMainImageChange} className="hidden" />
+            </label>
+          ) : (
+            <div className="relative h-56 md:h-72 w-full rounded-3xl overflow-hidden group shadow-md">
+              <img src={URL.createObjectURL(mainImage)} className="w-full h-full object-cover" alt="Cover" />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <label className="cursor-pointer bg-white text-black px-6 py-2.5 rounded-full font-bold text-[10px] tracking-widest flex items-center gap-2">
+                  <FiEdit2 size={12} /> CHANGER
+                  <input type="file" accept="image/*" onChange={handleMainImageChange} className="hidden" />
+                </label>
+              </div>
+            </div>
+          )}
+          {errors.mainImage && <p className="text-red-500 text-[11px] mt-2 text-center">{errors.mainImage}</p>}
+        </div>
+
+        {/* Galerie */}
+        <div className="space-y-3 pt-2">
+          <p className="text-[11px] text-gray-400 ml-2 uppercase tracking-[0.2em] font-medium">Galerie photos</p>
+          <div className="flex gap-4 overflow-x-auto pb-3 scrollbar-hide px-1">
+            <label className="shrink-0 w-24 h-24 border-2 border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-[#C3091C] bg-gray-50">
+              <FiPlus className="text-[#C3091C] text-xl" />
+              <span className="text-[8px] text-gray-400 mt-1 uppercase font-bold">Ajouter</span>
+              <input type="file" accept="image/*" onChange={(e) => setImageFiles([...imageFiles, ...Array.from(e.target.files)])} multiple className="hidden" />
+            </label>
+            {imageFiles.map((file, index) => (
+              <div key={index} className="relative shrink-0 w-24 h-24 rounded-2xl overflow-hidden shadow-sm">
+                <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
+                <button type="button" onClick={() => setImageFiles(imageFiles.filter((_, i) => i !== index))} className="absolute top-1 right-1 bg-white/90 rounded-full p-1.5 shadow-sm"><FiX size={10} className="text-red-600"/></button>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* Description */}
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          rows={4}
-          className={`border border-gray-300 p-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#C3091C] shadow-sm ${errors.description ? 'border-red-500' : ''}`}
-        />
-        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
-
-        {/* Bouton Photo Principale */}
-        <label
-          htmlFor="main-image-upload"
-          className={`flex items-center justify-center border-2 border-dashed p-4 rounded-xl cursor-pointer hover:bg-[#C3091C] hover:text-white transition-colors text-lg font-semibold text-gray-700 ${errors.mainImage ? 'border-red-500' : 'border-[#C3091C]'}`}
-        >
-          <FiUpload className="mr-2 text-2xl" />
-          {mainImage ? 'Changer la photo principale' : 'Ajouter la photo principale'}
-        </label>
-        <input
-          id="main-image-upload"
-          type="file"
-          accept="image/*"
-          onChange={handleMainImageChange}
-          className="hidden"
-        />
-        {errors.mainImage && <p className="text-red-500 text-sm mt-1">{errors.mainImage}</p>}
-
-        {/* Aperçu Photo Principale */}
-        {mainImage && (
-          <div className="w-full h-64 mt-2 rounded-xl overflow-hidden border shadow-lg">
-            <img
-              src={URL.createObjectURL(mainImage)}
-              alt="Main Preview"
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-
-        {/* Bouton Images Secondaires */}
-        <label
-          htmlFor="image-upload"
-          className={`flex items-center justify-center border-2 border-dashed p-4 rounded-xl cursor-pointer hover:bg-[#C3091C] hover:text-white transition-colors text-gray-700 font-semibold`}
-        >
-          <FiUpload className="mr-2 text-xl" />
-          Ajouter des images secondaires
-        </label>
-        <input
-          id="image-upload"
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          multiple
-          className="hidden"
-        />
-        {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
-
-        {/* Aperçu Images Secondaires */}
-        <div className="flex flex-wrap gap-3 mt-3">
-          {imageFiles.map((file, index) => (
-            <div key={index} className="relative w-24 h-24 border rounded-xl overflow-hidden shadow-lg">
-              <img
-                src={URL.createObjectURL(file)}
-                alt={`preview-${index}`}
-                className="w-full h-full object-cover"
-              />
-              <button
-                type="button"
-                onClick={() => handleRemoveImage(index)}
-                className="absolute top-1 right-1 bg-white bg-opacity-70 text-red-600 rounded-full p-1 hover:bg-red-600 hover:text-white transition"
-              >
-                <FiX className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
+        <div className="pt-2">
+          <textarea name="description" placeholder="Description de la propriété..." value={formData.description} onChange={handleChange} rows={4}
+            className="w-full p-5 bg-gray-50 rounded-3xl text-sm outline-none border border-transparent focus:border-[#C3091C] resize-none" />
+          {errors.description && <p className="text-red-500 text-[11px] mt-1 ml-2">{errors.description}</p>}
         </div>
 
-        {/* Bouton Submit */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-[#C3091C] text-white py-3 rounded-xl font-semibold hover:bg-[#9f0815] transition-colors shadow-lg mt-4"
-        >
-          {loading ? 'Ajout...' : 'Ajouter la maison'}
+        {/* Bouton */}
+        <button type="submit" disabled={loading} className="w-full bg-[#C3091C] text-white py-5 rounded-2xl md:rounded-3xl font-bold text-[11px] tracking-[0.3em] uppercase shadow-xl hover:brightness-110 active:scale-[0.99] transition-all">
+          {loading ? 'Publication...' : 'Enregistrer la propriété'}
         </button>
       </form>
     </div>
