@@ -82,7 +82,7 @@ export default function AddHouse() {
   };
 
   return (
-    <div className="w-full md:max-w-4xl md:mx-auto bg-white md:border md:border-gray-100 md:shadow-sm md:rounded-[2.5rem] p-5 md:p-10 my-0 md:my-10">
+    <div className="w-full absolute right-0 md:right-[5%] md:max-w-4xl md:mx-auto bg-white md:border md:border-gray-100 md:shadow-sm md:rounded-[2.5rem] p-5 md:p-10 my-0 md:my-10">
       
       {/* Header */}
       <div className="text-center mb-8 md:mb-10">
