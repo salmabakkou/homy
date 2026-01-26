@@ -7,51 +7,62 @@ export default function Sidebar({ onLogout }) {
   const location = useLocation();
 
   const navigation = [
-    { name: 'Dashboard', href: '/admin', icon: <FiHome size={22} /> },
-    { name: 'Ajouter une maison', href: '/admin/addHouse', icon: <FiPlus size={22} /> },
-    { name: 'Réservations', href: '/admin/reservations', icon: <FiCalendar size={22} /> },
+    { name: 'Dashboard', href: '/admin', icon: <FiHome size={20} /> },
+    { name: 'Ajouter maison', href: '/admin/addHouse', icon: <FiPlus size={20} /> },
+    { name: 'Réservations', href: '/admin/reservations', icon: <FiCalendar size={20} /> },
   ];
 
   const isActive = (href) => location.pathname === href;
 
   return (
-    <div className="fixed top-0 left-0 w-48 h-screen bg-white border-r border-gray-200 shadow-md flex flex-col z-50">
+    <div className="fixed top-0 left-0 w-56 h-screen bg-white border-r border-gray-200 shadow-lg flex flex-col z-50">
       
-      {/* Logo */}
+      {/* LOGO + HOMY  */}
       <Link
         to="/admin"
-        className="flex items-center p-3 border-b border-gray-200 cursor-pointer hover:opacity-80"
+        className="flex flex-col items-center justify-center py-6 border-b border-gray-200 cursor-pointer hover:opacity-90"
       >
-        <img src={logo} alt="Homy Logo" className="w-8 h-8 mr-2" />
-        <span className="text-2xl font-bold text-[#C3091C] font-playfair">Homy</span>
+        <div className="flex items-center space-x-3">
+          <img src={logo} alt="Homy Logo" className="w-10 h-10" />
+          <span className="text-3xl font-semibold tracking-widest text-[#C3091C] font-playfair">
+            HOMY
+          </span>
+        </div>
+        <span className="text-xs text-gray-400 mt-1 tracking-[0.3em]">
+          ADMIN
+        </span>
       </Link>
 
-      {/* Navigation */}
-      <nav className="flex-1 flex flex-col p-3 space-y-5">
+      {/* NAVIGATION */}
+      <nav className="flex-1 flex flex-col p-4 space-y-2">
         {navigation.map((item) => (
           <Link
             key={item.name}
             to={item.href}
-            className={`flex flex-col items-center py-3 rounded-lg transition-colors cursor-pointer ${
+            className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
               isActive(item.href)
-                ? 'bg-[#C3091C] text-white'
+                ? 'bg-[#C3091C] text-white shadow-md'
                 : 'text-gray-700 hover:bg-gray-100'
             }`}
           >
-            {item.icon}
-            <span className="mt-1 text-sm font-medium">{item.name}</span>
+            <div className={`${isActive(item.href) ? 'text-white' : 'text-[#C3091C]'}`}>
+              {item.icon}
+            </div>
+            <span className="text-sm font-medium tracking-wide">
+              {item.name}
+            </span>
           </Link>
         ))}
       </nav>
 
-      {/* Logout */}
-      <div className="p-3 border-t border-gray-200">
+      {/* LOGOUT */}
+      <div className="p-4 border-t border-gray-200">
         <button
           onClick={onLogout}
-          className="flex items-center justify-start space-x-2 w-full px-3 py-2 rounded-lg bg-white text-gray-900 font-medium hover:bg-gray-100 cursor-pointer transition-colors"
+          className="flex items-center space-x-3 w-full px-4 py-3 rounded-xl bg-white text-gray-900 font-medium hover:bg-gray-100 cursor-pointer transition-all"
         >
-          <FiLogOut size={20} />
-          <span>Déconnexion</span>
+          <FiLogOut size={20} className="text-[#C3091C]" />
+          <span className="tracking-wide">Déconnexion</span>
         </button>
       </div>
     </div>
