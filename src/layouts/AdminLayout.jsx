@@ -3,13 +3,25 @@ import Sidebar from '../components/Sidebar';
 
 export default function AdminLayout({ children }) {
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-white md:bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative">
+
+      {/* SIDEBAR */}
       <Sidebar />
-      <div className="flex-1 p-0 md:p-">
-        <div className="w-full max-w-5xl mx-auto">
+
+      {/* WRAPPER CONTENU */}
+      <div
+        className="
+          pt-6
+          px-4
+          lg:pl-64   /* PLUS SAFE QUE ml-60 */
+          transition-all
+        "
+      >
+        <div className="w-full max-w-7xl mx-auto">
           {children}
         </div>
       </div>
+
     </div>
   );
 }
