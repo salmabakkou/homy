@@ -216,9 +216,22 @@ export default function AddHouse() {
           </div>
 
           {/* Bouton de validation (Même style que Détails dans HouseCard) */}
-          <button type="submit" disabled={loading} className="w-full bg-[#C3091C] text-white py-5 rounded-3xl font-bold text-[11px] tracking-[0.3em] uppercase shadow-lg hover:shadow-[#C3091C]/20 active:scale-[0.98] transition-all disabled:opacity-50">
-            {loading ? 'PUBLICATION EN COURS...' : 'ENREGISTRER LA PROPRIÉTÉ'}
-          </button>
+          <div className="pt-4">
+            <button 
+              type="submit"
+              disabled={loading} 
+              className="w-full py-6 bg-[#C3091C] text-white rounded-4xl font-bold text-[12px] tracking-[0.4em] uppercase shadow-2xl hover:bg-black active:scale-[0.97] transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed group"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-3">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  PUBLICATION EN COURS...
+                </span>
+              ) : (
+                'ENREGISTRER LA PROPRIÉTÉ'
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>
