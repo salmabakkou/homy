@@ -8,7 +8,7 @@ export default function UserNavbar() {
   const isLoggedIn = false; 
 
   return (
-    <header className="w-full bg-white border-b border-gray-100 sticky top-0 z-[100]">
+    <header className="w-full bg-white border-b border-gray-100 sticky top-0 z-100">
       <div className="max-w-7xl mx-auto px-8">
         <div className="flex items-center justify-between h-24">
           

@@ -83,7 +83,7 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <Link
-              to={`/houses/${house.id}`}
+              to={`/maisons/${house.id}`}
               className="flex-1 h-11 bg-white text-black rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 shadow-xl hover:text-white"
               style={{ '--hover-bg': primaryRed }} /* Utilisation via style pour le hover plus bas ou simple classe */
               onMouseEnter={(e) => e.target.style.backgroundColor = primaryRed}
