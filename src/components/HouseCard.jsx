@@ -3,9 +3,26 @@ import { Link } from 'react-router-dom';
 import { FiEdit3, FiTrash2, FiHeart, FiMaximize, FiCalendar, FiMapPin, FiArrowUpRight } from 'react-icons/fi';
 import { FaBed, FaBath } from 'react-icons/fa'; 
 import toast from 'react-hot-toast';
+import { useDispatch, useSelector } from 'react-redux';
+import { addFavorite, removeFavorite } from '../store/wishlistSlice';
 
 export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) {
+  const dispatch = useDispatch();
+  const favorites = useSelector((state) => state.wishlist.favorites);
   const primaryRed = "#C3091C";
+
+  // Vérifie si la maison est déjà en favoris
+  const isFavorite = favorites.some(f => f.id === house.id);
+
+  const handleToggleFavorite = () => {
+    if (isFavorite) {
+      dispatch(removeFavorite(house.id));
+      toast.success('Maison retirée des favoris');
+    } else {
+      dispatch(addFavorite(house));
+      toast.success('Maison ajoutée aux favoris');
+    }
+  };
 
   return (
     <div className="group bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col relative w-full aspect-square">
@@ -32,7 +49,7 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
           <button
             onClick={(e) => { e.preventDefault(); onDelete(house); }}
             className="w-9 h-9 bg-white/90 backdrop-blur-md cursor-pointer rounded-full flex items-center justify-center hover:bg-white transition-all shadow-lg active:scale-90"
-            style={{ color: primaryRed }} /* UTILISATION ICI */
+            style={{ color: primaryRed }}
           >
             <FiTrash2 size={16} />
           </button>
@@ -43,7 +60,7 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
       <div className="absolute top-4 left-4 z-20">
         <span 
           className="px-4 py-1.5 rounded-full text-[9px] font-black tracking-[0.2em] uppercase text-white shadow-lg"
-          style={{ backgroundColor: house.status === 'available' ? '#10b981' : primaryRed }} /* UTILISATION ICI */
+          style={{ backgroundColor: house.status === 'available' ? '#10b981' : primaryRed }}
         >
           {house.status === 'available' ? 'Libre' : 'Occupé'}
         </span>
@@ -60,7 +77,7 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
               {house.price}<span className="text-[10px] font-light ml-1 text-white/70 tracking-normal">MAD</span>
             </span>
             <p className="text-white/80 text-[10px] font-medium flex items-center gap-1">
-              <FiMapPin size={12} style={{ color: primaryRed }} /> {/* UTILISATION ICI */}
+              <FiMapPin size={12} style={{ color: primaryRed }} />
               {house.address}
             </p>
           </div>
@@ -85,7 +102,7 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
             <Link
               to={`/maisons/${house.id}`}
               className="flex-1 h-11 bg-white text-black rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 shadow-xl hover:text-white"
-              style={{ '--hover-bg': primaryRed }} /* Utilisation via style pour le hover plus bas ou simple classe */
+              style={{ '--hover-bg': primaryRed }}
               onMouseEnter={(e) => e.target.style.backgroundColor = primaryRed}
               onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
             >
@@ -94,12 +111,12 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
 
             {!isAdmin && (
               <button
-                onClick={() => toast.success('Ajouté aux favoris')}
+                onClick={handleToggleFavorite}
                 className="w-11 h-11 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-2xl flex items-center justify-center hover:bg-white transition-all shrink-0"
                 onMouseEnter={(e) => e.target.style.color = primaryRed}
-                onMouseLeave={(e) => e.target.style.color = 'white'}
+                onMouseLeave={(e) => e.target.style.color = isFavorite ? primaryRed : 'white'}
               >
-                <FiHeart size={18} />
+                <FiHeart size={18} style={{ color: isFavorite ? primaryRed : 'white' }} />
               </button>
             )}
           </div>
@@ -107,7 +124,7 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
           <div className="h-4 flex items-center"> 
             {house.status !== 'available' && house.reservedTo && (
               <div className="text-[10px] text-white/90 font-bold italic flex items-center gap-2 animate-pulse">
-                <FiCalendar size={12} style={{ color: primaryRed }} /> {/* UTILISATION ICI */}
+                <FiCalendar size={12} style={{ color: primaryRed }} />
                 <span>Jusqu'au {house.reservedTo}</span>
               </div>
             )}
