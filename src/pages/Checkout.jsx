@@ -77,6 +77,7 @@ export default function Checkout() {
       await dispatch(addReservationThunk({ 
         ...formData, 
         houseId: house.id, 
+        houseTitle: house.title,
         total, 
         nights, 
         status: "pending" 

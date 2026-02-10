@@ -23,6 +23,15 @@ export const addReservationThunk = createAsyncThunk(
   }
 );
 
+// UPDATE STATUS
+export const updateReservationStatus = createAsyncThunk(
+  "reservations/updateStatus",
+  async ({ id, status }) => {
+    const res = await api.put(`/reservations/${id}`, { status });
+    return res.data;
+  }
+);
+
 const reservationsSlice = createSlice({
   name: 'reservations',
   initialState: {
@@ -65,6 +74,16 @@ const reservationsSlice = createSlice({
       .addCase(addReservationThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+
+      // UPDATE STATUS
+      .addCase(updateReservationStatus.fulfilled, (state, action) => {
+        const index = state.data.findIndex(
+          (r) => r.id === action.payload.id
+        );
+        if (index !== -1) {
+          state.data[index] = action.payload;
+        }
       });
   },
 });
