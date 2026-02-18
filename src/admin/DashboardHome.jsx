@@ -4,11 +4,13 @@ import { fetchHouses, deleteHouseThunk, updateHouseThunk } from '../store/houses
 import { uploadImageToCloudinary } from '../services/cloudinary';
 import HouseCard from '../components/HouseCard';
 import toast from 'react-hot-toast';
+
 import { 
   FiSearch, FiFilter, FiX, FiHome, FiMapPin, FiDollarSign, 
-  FiMaximize, FiPlus, FiTrash2, FiEdit2, FiLayers, FiChevronDown, FiCalendar 
+  FiMaximize, FiPlus, FiTrash2, FiLayers, FiChevronDown, FiCalendar 
 } from 'react-icons/fi';
 import { FaBed, FaBath } from 'react-icons/fa';
+
 
 export default function DashboardHome() {
   const dispatch = useDispatch();
@@ -24,8 +26,9 @@ export default function DashboardHome() {
   const [houseToDelete, setHouseToDelete] = useState(null);
   const [houseToEdit, setHouseToEdit] = useState(null);
   
-  // États pour l'update
+  // États pour l'updat
   const [newMainImage, setNewMainImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [newGalleryFiles, setNewGalleryFiles] = useState([]);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -39,10 +42,21 @@ export default function DashboardHome() {
     return () => { document.body.style.overflow = 'unset'; };
   }, [showEditModal, showDeleteModal]);
 
+  //pour éviter les memory leaks avec les previews d'images
+  useEffect(() => {
+    return () => {
+      newGalleryFiles.forEach(file => {
+        URL.revokeObjectURL(file);
+      });
+    };
+  }, [newGalleryFiles]);
+
+
   // Handlers
   const handleEditOpen = (house) => {
     setHouseToEdit({ ...house });
     setNewMainImage(null);
+    setImagePreview(null);
     setNewGalleryFiles([]);
     setShowEditModal(true);
   };
@@ -95,6 +109,9 @@ export default function DashboardHome() {
       await dispatch(updateHouseThunk(payload)).unwrap();
       toast.success('Propriété mise à jour !', { id: toastId });
       setShowEditModal(false);
+      setImagePreview(null);
+      setNewMainImage(null);
+      setNewGalleryFiles([]);
     } catch (error) {
       toast.error('Erreur mise à jour', { id: toastId });
     } finally {
@@ -274,29 +291,84 @@ export default function DashboardHome() {
                 <div className="space-y-4">
                   <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic">Visuels de la propriété</label>
                   <div className="relative h-60 rounded-4xl overflow-hidden group border-4 border-gray-50 shadow-inner">
-                    <img src={newMainImage ? URL.createObjectURL(newMainImage) : houseToEdit.mainImage} className="w-full h-full object-cover" />
+                  <img 
+                    src={imagePreview || houseToEdit.mainImage}
+                    className="w-full h-full object-cover" 
+                  />
                     <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                       <span className="bg-white px-5 py-2 rounded-full font-bold text-[10px]">CHANGER LA COUVERTURE</span>
-                      <input type="file" className="hidden" onChange={e => setNewMainImage(e.target.files[0])} />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            setNewMainImage(file);
+                            setImagePreview(URL.createObjectURL(file));
+                          }
+                        }}
+                      />
                     </label>
                   </div>
                   
                   {/* Galerie */}
                   <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+
+                    {/* Bouton ajout */}
                     <label className="shrink-0 w-24 h-24 border-2 border-dashed border-gray-200 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-red-50 transition-colors">
                       <FiPlus className="text-[#C3091C]" />
-                      <input type="file" multiple className="hidden" onChange={e => setNewGalleryFiles([...newGalleryFiles, ...Array.from(e.target.files)])} />
+                      <input
+                        type="file"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => {
+                          const files = Array.from(e.target.files);
+                          setNewGalleryFiles(prev => [...prev, ...files]);
+                        }}
+                      />
                     </label>
-                    {houseToEdit.images.map((img, idx) => (
-                      <div key={idx} className="relative shrink-0 w-24 h-24 rounded-2xl overflow-hidden group">
+
+                    {/* Images existantes */}
+                    {houseToEdit.images?.map((img, idx) => (
+                      <div key={`old-${idx}`} className="relative shrink-0 w-24 h-24 rounded-2xl overflow-hidden group">
                         <img src={img} className="w-full h-full object-cover" />
-                        <button type="button" onClick={() => setHouseToEdit({...houseToEdit, images: houseToEdit.images.filter(i => i !== img)})}
-                          className="absolute inset-0 bg-red-600/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setHouseToEdit({
+                              ...houseToEdit,
+                              images: houseToEdit.images.filter((_, i) => i !== idx),
+                            })
+                          }
+                          className="absolute inset-0 bg-red-600/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                        >
                           <FiTrash2 className="text-white" />
                         </button>
                       </div>
                     ))}
+
+                    {/* Nouvelles images (preview immédiat) */}
+                    {newGalleryFiles.map((file, idx) => (
+                      <div key={`new-${idx}`} className="relative shrink-0 w-24 h-24 rounded-2xl overflow-hidden group">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setNewGalleryFiles(newGalleryFiles.filter((_, i) => i !== idx))
+                          }
+                          className="absolute inset-0 bg-red-600/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                        >
+                          <FiTrash2 className="text-white" />
+                        </button>
+                      </div>
+                    ))}
+
                   </div>
+
                 </div>
 
                 <button type="submit" disabled={isUpdating} className="w-full py-6 bg-[#C3091C] text-white rounded-3xl font-bold text-[11px] tracking-[0.4em] uppercase shadow-xl hover:bg-black transition-all">

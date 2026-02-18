@@ -1,5 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import axios from "axios";
 import {
   FiUser,
   FiMail,
@@ -40,7 +41,7 @@ export default function Contact() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validate()) {
@@ -48,14 +49,23 @@ export default function Contact() {
       return;
     }
 
-    toast.success("Message envoyé avec succès ✨");
-
-    setFormData({
-      name: "",
-      email: "",
-      message: ""
-    });
-    setErrors({});
+    try {
+      const n8nUrl = import.meta.env.VITE_N8N_APP?.trim();
+      if (!n8nUrl) {
+        toast.error("Configuration N8N manquante");
+        return;
+      }
+      await axios.post(n8nUrl, formData);
+      toast.success("Message envoyé avec succès ✨");
+      setFormData({
+        name: "",
+        email: "",
+        message: ""
+      });
+      setErrors({});
+    } catch (error) {
+      toast.error("Erreur lors de l'envoi du message");
+    }
   };
 
   return (

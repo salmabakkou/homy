@@ -5,6 +5,8 @@ import {
   updateReservationStatus,
 } from "../store/reservationsSlice";
 import toast from "react-hot-toast";
+import "react-date-range/dist/styles.css";
+import "react-date-range/dist/theme/default.css";
 import {
   FiCalendar,
   FiUser,

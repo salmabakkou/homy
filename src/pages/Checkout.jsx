@@ -26,9 +26,9 @@ export default function Checkout() {
     guests: "1 Adulte",
     fullName: "",
     email: "",
+    phone: "",
   });
 
-  // ✅ ERREURS
   const [errors, setErrors] = useState({});
 
   const today = new Date().toISOString().split('T')[0];
@@ -49,13 +49,11 @@ export default function Checkout() {
     </div>
   );
 
-  // ✅ VALIDATION SIMPLE
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.from) newErrors.from = "Date d'arrivée obligatoire";
-    if (!formData.to) newErrors.to = "Date de départ obligatoire";
-    if (!formData.fullName.trim()) newErrors.fullName = "Nom complet obligatoire";
+    if (!formData.fullName.trim())
+      newErrors.fullName = "Nom complet obligatoire";
 
     if (!formData.email.trim()) {
       newErrors.email = "Email obligatoire";
@@ -63,40 +61,67 @@ export default function Checkout() {
       newErrors.email = "Email invalide";
     }
 
+    if (!formData.phone.trim())
+      newErrors.phone = "Téléphone obligatoire";
+
+    if (!formData.from)
+      newErrors.from = "Date d'arrivée obligatoire";
+
+    if (!formData.to)
+      newErrors.to = "Date de départ obligatoire";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleConfirm = async () => {
-    if (!validate()) {
-      toast.error("Veuillez corriger les erreurs");
-      return;
-    }
+ const handleConfirm = async () => {
+  if (!validate()) {
+    toast.error("Veuillez corriger les erreurs");
+    return;
+  }
 
-    try {
-      await dispatch(addReservationThunk({ 
-        ...formData, 
-        houseId: house.id, 
-        houseTitle: house.title,
-        total, 
-        nights, 
-        status: "pending" 
-      })).unwrap();
-
-      toast.success("Demande de réservation transmise");
-      navigate("/");
-    } catch {
-      // ✅ correction erreur ESLint
-      toast.error("Une erreur est survenue");
-    }
+  const reservationData = {
+    ...formData,
+    houseId: house.id,
+    houseTitle: house.title,
+    total,
+    nights,
+    status: "pending"
   };
+
+  try {
+    // ✅ Envoi vers n8n
+    const response = await fetch(import.meta.env.VITE_N8N_CHECK, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(reservationData),
+    });
+
+    if (!response.ok) {
+      throw new Error("Erreur webhook");
+    }
+
+    // ✅ Enregistrer aussi dans ton backend
+    await dispatch(addReservationThunk(reservationData)).unwrap();
+
+    toast.success("Demande de réservation transmise");
+    navigate("/");
+
+  } catch (error) {
+    console.error("Erreur checkout :", error);
+    toast.error("Une erreur est survenue");
+  }
+};
+
 
   return (
     <div className="w-full min-h-screen bg-[#F9F9F9] py-10 md:py-20 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="flex flex-col lg:flex-row gap-12 items-start">
           
-          {/* GAUCHE : VISUEL */}
+          {/* GAUCHE */}
           <div className="w-full lg:w-1/3 lg:sticky lg:top-10">
             <div className="bg-white rounded-[2.5rem] p-4 shadow-sm border border-gray-100">
               <div className="aspect-square w-full rounded-4xl overflow-hidden mb-6 shadow-inner">
@@ -119,19 +144,9 @@ export default function Checkout() {
                 </div>
               </div>
             </div>
-
-            {/* BADGES */}
-            {/* <div className="mt-6 px-6 space-y-3">
-              <div className="flex items-center gap-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                <FiCheckCircle className="text-green-500" /> Annulation flexible
-              </div>
-              <div className="flex items-center gap-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                <FiCheckCircle className="text-green-500" /> Confirmation immédiate
-              </div>
-            </div> */}
           </div>
 
-          {/* DROITE : FORMULAIRE */}
+          {/* DROITE */}
           <div className="w-full lg:w-2/3 bg-white rounded-[3rem] p-8 md:p-12 shadow-xl border border-gray-100">
             <div className="mb-10">
               <h2 className="text-2xl font-bold text-gray-800 tracking-tight">
@@ -140,6 +155,60 @@ export default function Checkout() {
             </div>
 
             <div className="space-y-8">
+
+              {/* NOM */}
+              <div className="space-y-2">
+                <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic tracking-wider">
+                  Nom complet & Prénom
+                </label>
+                <div className="relative">
+                  <FiUser className="absolute top-4 left-4 text-[#C3091C]" />
+                  <input
+                    type="text"
+                    value={formData.fullName}
+                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                    className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none"
+                  />
+                </div>
+                {errors.fullName && <p className="text-red-500 text-xs ml-2">{errors.fullName}</p>}
+              </div>
+
+              {/* EMAIL + TELEPHONE */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <div className="space-y-2">
+                  <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic tracking-wider">
+                    Email de contact
+                  </label>
+                  <div className="relative">
+                    <FiMail className="absolute top-4 left-4 text-[#C3091C]" />
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none"
+                    />
+                  </div>
+                  {errors.email && <p className="text-red-500 text-xs ml-2">{errors.email}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic tracking-wider">
+                    Téléphone
+                  </label>
+                  <div className="relative">
+                    <FiUser className="absolute top-4 left-4 text-[#C3091C]" />
+                    <input
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none"
+                    />
+                  </div>
+                  {errors.phone && <p className="text-red-500 text-xs ml-2">{errors.phone}</p>}
+                </div>
+
+              </div>
 
               {/* DATES */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -178,62 +247,27 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {/* NOM */}
+              {/* VOYAGEURS */}
               <div className="space-y-2">
                 <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic tracking-wider">
-                  Nom complet & Prénom
+                  Voyageurs
                 </label>
                 <div className="relative">
                   <FiUser className="absolute top-4 left-4 text-[#C3091C]" />
-                  <input
-                    type="text"
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                    className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none"
-                  />
-                </div>
-                {errors.fullName && <p className="text-red-500 text-xs ml-2">{errors.fullName}</p>}
-              </div>
-
-              {/* EMAIL + GUESTS */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic tracking-wider">
-                    Email de contact
-                  </label>
-                  <div className="relative">
-                    <FiMail className="absolute top-4 left-4 text-[#C3091C]" />
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none"
-                    />
-                  </div>
-                  {errors.email && <p className="text-red-500 text-xs ml-2">{errors.email}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic tracking-wider">
-                    Voyageurs
-                  </label>
-                  <div className="relative">
-                    <FiUser className="absolute top-4 left-4 text-[#C3091C]" />
-                    <select
-                      value={formData.guests}
-                      onChange={(e) => setFormData({...formData, guests: e.target.value})}
-                      className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none appearance-none cursor-pointer"
-                    >
-                      <option>1 Adulte</option>
-                      <option>2 Adultes</option>
-                      <option>Famille / Groupe</option>
-                    </select>
-                    <FiChevronDown className="absolute top-4 right-4 text-gray-400" />
-                  </div>
+                  <select
+                    value={formData.guests}
+                    onChange={(e) => setFormData({...formData, guests: e.target.value})}
+                    className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none appearance-none cursor-pointer"
+                  >
+                    <option>1 Adulte</option>
+                    <option>2 Adultes</option>
+                    <option>Famille / Groupe</option>
+                  </select>
+                  <FiChevronDown className="absolute top-4 right-4 text-gray-400" />
                 </div>
               </div>
 
-              {/* RÉCAP */}
+              {/* RECAP */}
               <div className="pt-6 border-t border-dashed border-gray-200">
                 <span className="text-gray-400 italic font-medium">
                   {house.price} MAD x {nights} nuits
@@ -262,6 +296,7 @@ export default function Checkout() {
 
             </div>
           </div>
+
         </div>
       </div>
     </div>

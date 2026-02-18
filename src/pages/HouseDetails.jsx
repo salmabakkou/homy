@@ -1,5 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import fetchHouses from "../store/housesSlice";
 import {
   FiMaximize,
   FiHeart,
@@ -11,8 +14,16 @@ import { FaBed, FaBath, FaCar } from "react-icons/fa";
 export default function HouseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const houses = useSelector((state) => state.houses.data || []);
+
+    useEffect(() => {
+      if (!houses.length) {
+        dispatch(fetchHouses());
+      }
+  }, [dispatch, houses.length]);
+
   const house = houses.find((h) => String(h.id) === String(id));
 
   if (!house)
@@ -22,8 +33,12 @@ export default function HouseDetails() {
       </div>
     );
 
+    
   const isReserved = house.status === "reserved";
   const extraImages = house.images?.slice(0, 4) || [];
+
+  console.log("HOUSE IMAGES:", house?.images);
+
 
   return (
     <div className="max-w-287.5 mx-auto px-6 py-10 bg-white text-slate-900 font-sans">
