@@ -1,10 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchReservations,
-  updateReservationStatus,
-} from "../store/reservationsSlice";
-import toast from "react-hot-toast";
+import { fetchReservations } from "../store/reservationsSlice";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import {
@@ -23,17 +19,6 @@ export default function Reservations() {
   useEffect(() => {
     dispatch(fetchReservations());
   }, [dispatch]);
-
-  const handleStatusChange = async (id, status) => {
-    try {
-      await dispatch(
-        updateReservationStatus({ id, status })
-      ).unwrap();
-      toast.success("Statut mis à jour");
-    } catch {
-      toast.error("Erreur lors de la mise à jour");
-    }
-  };
 
   return (
     <div className="min-h-screen bg-[#F9F9F9] p-10">
@@ -81,7 +66,6 @@ export default function Reservations() {
                   <th className="p-5 text-left">Maison</th>
                   <th className="p-5 text-left">Dates</th>
                   <th className="p-5 text-left">Total</th>
-                  <th className="p-5 text-left">Statut</th>
                 </tr>
               </thead>
 
@@ -128,37 +112,6 @@ export default function Reservations() {
                       {reservation.total} MAD
                     </td>
 
-                    {/* STATUS */}
-                    <td className="p-5">
-                      <select
-                        value={reservation.status}
-                        onChange={(e) =>
-                          handleStatusChange(
-                            reservation.id,
-                            e.target.value
-                          )
-                        }
-                        className={`px-4 py-2 rounded-full text-xs font-bold outline-none cursor-pointer
-                          ${
-                            reservation.status === "confirmed"
-                              ? "bg-green-100 text-green-700"
-                              : reservation.status === "rejected"
-                              ? "bg-red-100 text-red-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }
-                        `}
-                      >
-                        <option value="pending">
-                          En attente
-                        </option>
-                        <option value="confirmed">
-                          Confirmée
-                        </option>
-                        <option value="rejected">
-                          Refusée
-                        </option>
-                      </select>
-                    </td>
                   </tr>
                 ))}
               </tbody>

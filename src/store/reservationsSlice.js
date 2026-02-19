@@ -23,35 +23,21 @@ export const addReservationThunk = createAsyncThunk(
   }
 );
 
-// UPDATE STATUS
-export const updateReservationStatus = createAsyncThunk(
-  "reservations/updateStatus",
-  async ({ id, status }) => {
-    const res = await api.put(`/reservations/${id}`, { status });
-    return res.data;
-  }
-);
-
 const reservationsSlice = createSlice({
   name: 'reservations',
   initialState: {
     data: [],
     loading: false,
     error: null,
-    success: null,
   },
-  reducers: {
-    clearReservationStatus: (state) => {
-      state.error = null;
-      state.success = null;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
 
       // FETCH
       .addCase(fetchReservations.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchReservations.fulfilled, (state, action) => {
         state.loading = false;
@@ -65,28 +51,17 @@ const reservationsSlice = createSlice({
       // ADD
       .addCase(addReservationThunk.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(addReservationThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.data.push(action.payload);
-        state.success = 'Réservation confirmée';
       })
       .addCase(addReservationThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
-      })
-
-      // UPDATE STATUS
-      .addCase(updateReservationStatus.fulfilled, (state, action) => {
-        const index = state.data.findIndex(
-          (r) => r.id === action.payload.id
-        );
-        if (index !== -1) {
-          state.data[index] = action.payload;
-        }
       });
   },
 });
 
-export const { clearReservationStatus } = reservationsSlice.actions;
 export default reservationsSlice.reducer;

@@ -6,7 +6,9 @@ import logo from "../assets/logo.png";
 
 export default function UserNavbar() {
   const [open, setOpen] = useState(false);
-  const isLoggedIn = false;
+  const role = localStorage.getItem("role");
+  const isLoggedIn = role !== null; // vrai si admin ou user
+
 
   // ✅ récupérer les favoris depuis redux
   const favoritesCount = useSelector(
@@ -77,20 +79,24 @@ export default function UserNavbar() {
             </Link>
 
             {isLoggedIn ? (
-              <Link to="/profile" className="flex items-center gap-2 text-gray-400">
-                <FiUser size={18} strokeWidth={1} />
-                <span className="text-[9px] font-light uppercase tracking-[0.3em]">
-                  Profil
-                </span>
-              </Link>
+              <button
+                onClick={() => {
+                  localStorage.removeItem("role"); // déconnexion
+                  window.location.href = "/"; // revenir à l'accueil
+                }}
+                className="px-8 py-2.5 border border-[#C3091C] text-[#C3091C] rounded-full text-[10px] tracking-[0.3em] font-light uppercase hover:bg-[#C3091C] hover:text-white transition-all duration-500"
+              >
+                Déconnexion
+              </button>
             ) : (
               <Link
-                to="/login"
+                to="/admin/login"
                 className="px-8 py-2.5 border border-[#C3091C] text-[#C3091C] rounded-full text-[10px] tracking-[0.3em] font-light uppercase hover:bg-[#C3091C] hover:text-white transition-all duration-500"
               >
                 Connexion
               </Link>
             )}
+
           </div>
 
           {/* Mobile Button */}
@@ -110,7 +116,7 @@ export default function UserNavbar() {
           <NavLink to="/maisons" onClick={() => setOpen(false)}>Maisons</NavLink>
           <NavLink to="/contact" onClick={() => setOpen(false)}>Contact</NavLink>
           <Link
-            to="/login"
+            to="/admin/login"
             onClick={() => setOpen(false)}
             className="mt-4 px-10 py-3 bg-[#C3091C] text-white rounded-full text-[10px] tracking-[0.3em] font-bold"
           >

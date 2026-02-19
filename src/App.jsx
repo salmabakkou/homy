@@ -14,6 +14,7 @@ import Contact from "./pages/Contact";
 import Favorites from "./pages/Favorites";
 
 // Admin Pages
+import ProtectedRoute from "./admin/ProtectedRoute";
 import AdminLogin from "./admin/AdminLogin";
 import AdminDashboard from "./admin/AdminDashboard";
 import DashboardHome from "./admin/DashboardHome";
@@ -40,14 +41,21 @@ export default function App() {
           </Route>
 
           {/* Admin Routes */}
-          <Route path="/admin/login" element={<AdminLogin />} />      
+          <Route path="/admin/login" element={<AdminLogin />} />
 
-          {/* Ici on utilise AdminDashboard comme layout */}
-          <Route path="/admin" element={<AdminDashboard />}>
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          >
             <Route index element={<DashboardHome />} />
-            <Route path="addHouse" element={<AddHouse />} />   
+            <Route path="addHouse" element={<AddHouse />} />
             <Route path="reservations" element={<Reservations />} />
           </Route>
+
 
         </Routes>
       </BrowserRouter>
