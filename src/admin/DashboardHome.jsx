@@ -9,7 +9,7 @@ import {
   FiSearch, FiFilter, FiX, FiHome, FiMapPin, FiDollarSign, 
   FiMaximize, FiPlus, FiTrash2, FiLayers, FiChevronDown, FiCalendar 
 } from 'react-icons/fi';
-import { FaBed, FaBath } from 'react-icons/fa';
+import { FaBed, FaBath, FaCity } from 'react-icons/fa';
 
 
 export default function DashboardHome() {
@@ -202,13 +202,21 @@ export default function DashboardHome() {
               <form onSubmit={handleUpdate} className="space-y-6">
                 
                 {/* Inputs Texte */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic">Titre</label>
                     <div className="relative">
                       <FiHome className="absolute top-4 left-4 text-[#C3091C]" />
                       <input type="text" className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C]"
                         value={houseToEdit.title} onChange={e => setHouseToEdit({...houseToEdit, title: e.target.value})} required />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic">Ville</label>
+                    <div className="relative">
+                      <FaCity className="absolute top-4 left-4 text-[#C3091C]" />
+                      <input type="text" className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C]"
+                        value={houseToEdit.city || ''} onChange={e => setHouseToEdit({...houseToEdit, city: e.target.value})} required />
                     </div>
                   </div>
                   <div className="space-y-2">

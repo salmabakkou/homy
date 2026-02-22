@@ -7,7 +7,7 @@ import {
   FiUpload, FiHome, FiMapPin, FiDollarSign, FiMaximize, 
   FiX, FiCalendar, FiPlus, FiEdit2, FiLayers, FiChevronDown 
 } from 'react-icons/fi';
-import { FaBed, FaBath } from 'react-icons/fa';
+import { FaBed, FaBath, FaCity } from 'react-icons/fa';
 
 export default function AddHouse() {
   const dispatch = useDispatch();
@@ -17,7 +17,7 @@ export default function AddHouse() {
   const today = new Date().toISOString().split('T')[0];
 
   const [formData, setFormData] = useState({
-    title: '', address: '', price: '', description: '',
+    title: '', city: '', address: '', price: '', description: '',
     rooms: '', bathrooms: '', surface: '',
     type: 'Appartement', status: 'available',
     reservedFrom: '', reservedTo: '',
@@ -44,6 +44,7 @@ export default function AddHouse() {
   const validate = () => {
     const newErrors = {};
     if (!formData.title) newErrors.title = "Titre requis";
+    if (!formData.city) newErrors.city = "Ville requise";
     if (!formData.address) newErrors.address = "Adresse requise";
     if (!formData.price) newErrors.price = "Prix requis";
     if (!formData.surface) newErrors.surface = "Surface requise";
@@ -80,7 +81,7 @@ export default function AddHouse() {
       };
       await dispatch(addHouseThunk(houseData)).unwrap();
       toast.success('Propriété publiée');
-      setFormData({ title: '', address: '', price: '', description: '', rooms: '', bathrooms: '', surface: '', type: 'Appartement', status: 'available', reservedFrom: '', reservedTo: '' });
+      setFormData({ title: '', city: '', address: '', price: '', description: '', rooms: '', bathrooms: '', surface: '', type: 'Appartement', status: 'available', reservedFrom: '', reservedTo: '' });
       setMainImage(null); setImageFiles([]);
     } catch (error) {
       console.error(error);
@@ -102,7 +103,7 @@ export default function AddHouse() {
         <div className="bg-white rounded-[2.5rem] p-6 md:p-12 shadow-xl border border-gray-100">
           <form onSubmit={handleSubmit} className="space-y-7">
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic">Titre</label>
                 <div className="relative">
@@ -111,6 +112,16 @@ export default function AddHouse() {
                     className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C] transition-all" />
                 </div>
                 {errors.title && <p className="text-red-500 text-[10px] mt-1 ml-2">{errors.title}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic">Ville</label>
+                <div className="relative">
+                  <FaCity className="absolute top-4 left-4 text-[#C3091C]" />
+                  <input type="text" name="city" value={formData.city} onChange={handleChange}
+                    className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C] transition-all" />
+                </div>
+                {errors.city && <p className="text-red-500 text-[10px] mt-1 ml-2">{errors.city}</p>}
               </div>
 
               <div className="space-y-2">
