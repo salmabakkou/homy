@@ -1,181 +1,198 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { fetchHouses } from "../store/housesSlice";
-import {
-  FiMaximize,
-  FiHeart,
-  FiWifi,
-  FiShield,
-  FiMapPin,
-} from "react-icons/fi";
-import { FaBed, FaBath, FaCar, FaSpinner } from "react-icons/fa";
+import { FiMapPin } from "react-icons/fi";
+import { FaSpinner } from "react-icons/fa";
 
 /* =========================================
-   Composant : Section "À proximité" (IA Gemini Flash)
-   Cible le modèle : gemini-flash-latest
-   ========================================= */
-function ProximiteSection({ address, city, title, description }) {
-  const [analyse, setAnalyse] = useState(null);
+   SECTION PROXIMITÉ IA (ROBUSTE)
+========================================= */
+
+function ProximiteSection({ address, city }) {
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const cacheKey = `proximite_ai_gemini_flash_${address}`;
-
-  const handleRefresh = () => {
-    localStorage.removeItem(cacheKey);
-    setAnalyse(null);
-    setError(null);
-  };
+  const cacheKey = `ai_proximity_${address}`;
 
   useEffect(() => {
-    if (!address || analyse !== null) return;
+    if (!address) return;
 
+    // 🔹 Vérifier cache
     const cached = localStorage.getItem(cacheKey);
     if (cached) {
-      setAnalyse(cached);
-      return;
+      try {
+        setData(JSON.parse(cached));
+        return;
+      } catch {
+        localStorage.removeItem(cacheKey);
+      }
     }
 
     const prompt = `
-        Tu es un expert en conciergerie haut de gamme au Maroc. 
-        Localisation cible : "${address}${city ? `, ${city}` : ""}" (Maroc).
-        Style de la propriété : "${title || ""}".
-        
-        Rédige EXACTEMENT 5 recommandations de lieux RÉELS, prestigieux et ouverts au public à proximité immédiate.
-        Chaque recommandation doit être riche, précise (Nom Propre obligatoire) et informative.
-        
-        STRUCTURE (5 lignes, une par catégorie, commence par l'émoji) :
-        🏛️ Histoire & Culture : [Nom d'un monument/musée] - [Distance] - [Description de son importance]
-        🍴 Table d'Exception : [Nom d'un restaurant réputé] - [Distance] - [Spécialité et ambiance]
-        💪 Bien-être & Vitalité : [Nom d'un club de sport ou spa] - [Distance] - [Services premium]
-        🏖️ Évasion & Nature : [Nom d'une plage ou site naturel] - [Distance] - [Vue ou expérience unique]
-        ✨ Le Secret Local : [Lieu unique ou pépite méconnue] - [Distance] - [Pourquoi y aller]
+Tu es un expert local au Maroc.
 
-        Consignes strictes :
-        - UTILISE DES NOMS PROPRES RÉELS vérifiables.
-        - Ne donne QUE les 5 lignes demandées.
-        - Pas de texte avant ou après.
-      `;
+Localisation : "${address}${city ? `, ${city}` : ""}".
 
-    const run = async () => {
-      setLoading(true);
-      setError(null);
+Retourne UNIQUEMENT un JSON valide :
 
-      const geminiKey = import.meta.env.VITE_GEMINI_API_KEY;
+{
+  "categories": [
+    {
+      "title": "Nom catégorie",
+      "items": [
+        {
+          "name": "Nom réel",
+          "distance": "X km",
+          "description": "Description courte utile"
+        }
+      ]
+    }
+  ]
+}
+`;
 
-      if (!geminiKey) {
-        setError("Clé API manquante. Veuillez configurer VITE_GEMINI_API_KEY dans votre fichier .env");
-        setLoading(false);
-        return;
-      }
+const fetchAI = async () => {
+  if (loading) return; // 🔥 empêche double appel
 
-      try {
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${geminiKey}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: {
-                temperature: 0.7,
-                topK: 40,
-                topP: 0.95,
-                maxOutputTokens: 1024,
-              },
-            }),
+  setLoading(true);
+  setError(null);
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 1500
           }
-        );
-
-        if (response.status === 429) {
-          throw new Error("Quota atteint (429). L'IA est surchargée. Réessayez dans 60 secondes ou utilisez une autre clé.");
-        }
-
-        if (!response.ok) {
-          throw new Error(`Erreur API (${response.status}). Vérifiez votre connexion ou votre clé.`);
-        }
-
-        const data = await response.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-
-        if (text) {
-          setAnalyse(text);
-          localStorage.setItem(cacheKey, text);
-        } else {
-          throw new Error("L'IA n'a pas pu générer de recommandations pour cette adresse.");
-        }
-      } catch (err) {
-        console.error("Gemini Error:", err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        })
       }
-    };
+    );
 
-    run();
-  }, [address, analyse, cacheKey, city, title, description]);
+    // 🔥 GESTION SPÉCIALE 429
+    if (res.status === 429) {
+      throw new Error("Quota dépassé. Réessayez dans quelques minutes.");
+    }
+
+    if (!res.ok) {
+      throw new Error(`Erreur API (${res.status})`);
+    }
+
+    const result = await res.json();
+
+    const text =
+      result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    if (!text) {
+      throw new Error("Réponse vide");
+    }
+
+    const cleaned = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    const first = cleaned.indexOf("{");
+    const last = cleaned.lastIndexOf("}");
+
+    if (first === -1 || last === -1) {
+      throw new Error("Format JSON invalide");
+    }
+
+    const jsonString = cleaned.slice(first, last + 1);
+
+    let parsed;
+
+    try {
+      parsed = JSON.parse(jsonString);
+    } catch {
+      throw new Error("JSON cassé par l'IA");
+    }
+
+    setData(parsed);
+    localStorage.setItem(cacheKey, JSON.stringify(parsed));
+
+  } catch (err) {
+    console.error(err);
+
+    setError(
+      err.message.includes("Quota")
+        ? err.message
+        : "Impossible de générer les bons plans."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+    fetchAI();
+  }, [address, city]);
 
   return (
-    <div className="mt-8">
-      <h3 className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-4 italic flex items-center gap-2">
-        <FiMapPin size={10} />
-        À proximité — Expertise Conciergerie IA
-        {!loading && analyse && (
-          <span className="ml-1 px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider bg-blue-50 text-blue-400 border border-blue-100">
-            ✦ Premium
-          </span>
-        )}
-        {!loading && (analyse || error) && (
-          <button
-            onClick={handleRefresh}
-            className="ml-auto text-[8px] text-gray-300 hover:text-gray-500 italic transition-colors"
-          >
-            ↺ Actualiser
-          </button>
-        )}
+    <div className="mt-12">
+      <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6 flex items-center gap-2">
+        <FiMapPin />
+        Bons plans à proximité
       </h3>
 
-      <div className="p-8 bg-gradient-to-br from-[#fafafa] to-[#fdfdfd] rounded-3xl border border-dashed border-gray-200 min-h-[100px]">
+      <div className="bg-gray-50 p-8 rounded-3xl border border-gray-100">
         {loading && (
-          <div className="flex items-center gap-3 text-gray-400 text-[11px] italic">
-            <FaSpinner className="animate-spin" size={13} />
-            Conciergerie IA : Exploration des adresses prestigieuses...
+          <div className="flex items-center gap-3 text-gray-400">
+            <FaSpinner className="animate-spin" />
+            Analyse des environs...
           </div>
         )}
 
-        {!loading && error && (
-          <p className="text-[11px] text-red-500 bg-red-50 p-3 rounded-xl border border-red-100 italic">
-            {error}
-          </p>
+        {error && (
+          <p className="text-red-500 text-sm">{error}</p>
         )}
 
-        {!loading && analyse && (
-          <div className="space-y-6">
-            {analyse
-              .split("\n")
-              .filter((l) => l.trim().length > 5)
-              .slice(0, 5)
-              .map((line, i) => (
-                <div key={i} className="flex items-start gap-4">
-                  <p className="text-[13px] text-gray-700 leading-relaxed font-medium">
-                    {line.trim()}
+        {data?.categories?.map((category, i) => (
+          <div key={i} className="mb-10">
+            <h4 className="font-bold text-xs uppercase text-gray-600 mb-4">
+              {category.title}
+            </h4>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              {category.items?.map((item, index) => (
+                <div
+                  key={index}
+                  className="bg-white p-5 rounded-2xl border border-gray-100 hover:shadow-md transition"
+                >
+                  <div className="flex justify-between mb-2">
+                    <p className="font-semibold text-sm">
+                      {item.name}
+                    </p>
+                    <span className="text-xs text-red-600 font-bold">
+                      {item.distance}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-600">
+                    {item.description}
                   </p>
                 </div>
               ))}
+            </div>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );
 }
 
-/* ---- Page principale ---- */
+/* =========================================
+   PAGE PRINCIPALE
+========================================= */
+
 export default function HouseDetails() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const houses = useSelector((state) => state.houses.data || []);
   const loading = useSelector((state) => state.houses.loading);
@@ -186,191 +203,43 @@ export default function HouseDetails() {
 
   const house = houses.find((h) => String(h.id) === String(id));
 
-  // ⏳ Chargement en cours
-  if (loading && !house) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-8 h-8 border-2 border-gray-900 border-t-transparent rounded-full animate-spin" />
-        <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-          Chargement de la propriété…
-        </p>
-      </div>
-    );
-  }
+  if (loading && !house) return <p>Chargement...</p>;
+  if (!house) return <p>Maison introuvable</p>;
 
-  // ❌ Maison introuvable après chargement
-  if (!loading && !house) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">
-          Propriété introuvable.
-        </p>
+  return (
+    <div className="max-w-6xl mx-auto px-6 py-10">
+
+      <h1 className="text-3xl font-bold mb-2">
+        {house.title}
+      </h1>
+
+      <p className="text-gray-500 mb-6">
+        {house.address}
+      </p>
+
+      <img
+        src={house.mainImage}
+        alt="house"
+        className="w-full h-96 object-cover rounded-3xl mb-10"
+      />
+
+      <p className="text-gray-600 mb-10">
+        {house.description}
+      </p>
+
+      <ProximiteSection
+        address={house.address}
+        city={house.city}
+      />
+
+      <div className="mt-12">
         <button
-          onClick={() => navigate("/maisons")}
-          className="px-6 py-3 bg-black text-white text-[10px] uppercase tracking-widest rounded-xl hover:bg-gray-800 transition"
+          onClick={() => navigate(`/checkout/${house.id}`)}
+          className="w-full bg-black text-white py-4 rounded-2xl font-bold hover:opacity-90"
         >
-          Retour aux maisons
+          Réserver maintenant
         </button>
       </div>
-    );
-  }
-
-  if (!house) return null;
-
-  const isReserved = house.status === "reserved";
-  const extraImages = house.images?.slice(0, 4) || [];
-
-  return (
-    <div className="max-w-287.5 mx-auto px-6 py-10 bg-white text-slate-900 font-sans">
-
-      {/* --- HEADER --- */}
-      <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-8">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <span className="px-2 py-0.5 bg-black text-white text-[8px] font-bold uppercase tracking-widest rounded-sm">
-              {house.type || "Propriété"}
-            </span>
-            <span className="text-[10px] text-gray-400 font-medium uppercase tracking-tight italic">
-              {house.address}
-            </span>
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-gray-900 leading-tight">
-            {house.title}
-          </h1>
-        </div>
-
-        <button className="p-2.5 rounded-full border border-gray-100 hover:shadow-sm transition-all group cursor-pointer">
-          <FiHeart
-            className="text-gray-300 group-hover:text-[#C3091C] group-hover:fill-[#C3091C] transition-colors"
-            size={18}
-          />
-        </button>
-      </div>
-
-      {/* --- GALERIE --- */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-2 h-95 mb-12 overflow-hidden rounded-3xl">
-        <div className="col-span-12 md:col-span-7 h-full overflow-hidden cursor-pointer">
-          <img
-            src={house.mainImage}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-            alt="Principale"
-          />
-        </div>
-
-        <div className="hidden md:grid md:col-span-5 grid-cols-2 gap-2">
-          {extraImages.map((img, idx) => (
-            <div key={idx} className="relative overflow-hidden rounded-2xl cursor-pointer h-full">
-              <img
-                src={img}
-                className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
-                alt={`Détail ${idx}`}
-              />
-              <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors duration-300" />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* --- CONTENU --- */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-
-        {/* GAUCHE */}
-        <div className="lg:col-span-7 flex flex-col space-y-12">
-
-          {/* STATS */}
-          <div className="flex justify-between items-center pb-8 border-b border-gray-100 px-2">
-            <Stat icon={<FiMaximize />} label="Surface" value={`${house.surface} m²`} />
-            <Stat icon={<FaBed />} label="Chambres" value={house.rooms} />
-            <Stat icon={<FaBath />} label="Bains" value={house.bathrooms} />
-          </div>
-
-          {/* ÉQUIPEMENTS */}
-          <div className="py-4 border-b border-gray-100">
-            <div className="flex flex-wrap justify-between items-center gap-4">
-              <Equip icon={<FiWifi />} label="Wifi haut débit" />
-              <Equip icon={<FaCar />} label="Parking privé" />
-              <Equip icon={<FiShield />} label="Conciergerie 24/7" />
-            </div>
-          </div>
-
-          {/* DESCRIPTION */}
-          <div>
-            <p className="text-[15px] text-gray-600 leading-relaxed text-justify">
-              {house.description}
-            </p>
-          </div>
-
-          {/* PROXIMITÉ IA */}
-          <ProximiteSection
-            address={house.address}
-            city={house.city}
-            title={house.title}
-            description={house.description}
-          />
-
-        </div>
-
-        {/* DROITE : RÉSERVATION */}
-        <div className="lg:col-span-5">
-          <div className="sticky top-6 bg-linear-to-br from-white to-[#f7f7f7] rounded-[2.5rem] p-10 border border-gray-100 shadow-xl space-y-8">
-
-            <div className="text-center space-y-2">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
-                Prix par nuit
-              </p>
-              <span className="text-4xl font-black tracking-tighter">
-                {house.price} <span className="text-sm text-gray-400">MAD</span>
-              </span>
-            </div>
-
-            <div className="h-px bg-linear-to-r from-transparent via-gray-200 to-transparent" />
-
-            <button
-              onClick={() => navigate(`/checkout/${house.id}`)}
-              disabled={isReserved}
-              className={`w-full py-6 rounded-2xl text-[11px] font-black uppercase tracking-[0.35em] transition-all
-                ${isReserved
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : "bg-black text-white hover:bg-gray-900 shadow-2xl hover:scale-[1.02]"
-                }
-              `}
-            >
-              {isReserved ? "Actuellement réservé" : "Réserver maintenant"}
-            </button>
-
-            {!isReserved && (
-              <p className="text-center text-[9px] text-gray-400 italic tracking-wide">
-                Aucun paiement immédiat • Confirmation rapide
-              </p>
-            )}
-          </div>
-        </div>
-
-      </div>
-    </div>
-  );
-}
-
-/* ---- Small Components ---- */
-
-function Stat({ icon, label, value }) {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-[#C3091C]">
-        {icon}
-      </div>
-      <div>
-        <p className="text-[8px] font-bold text-gray-400 uppercase italic">{label}</p>
-        <p className="text-sm font-bold">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function Equip({ icon, label }) {
-  return (
-    <div className="flex items-center gap-2 text-[10px] font-bold text-gray-600 uppercase tracking-tight">
-      <span className="text-[#C3091C]">{icon}</span> {label}
     </div>
   );
 }

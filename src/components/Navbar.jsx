@@ -33,8 +33,7 @@ export default function UserNavbar() {
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `text-[11px] tracking-[0.4em] uppercase font-light transition-all duration-500 hover:text-[#C3091C] ${
-                  isActive ? "text-[#C3091C]" : "text-gray-400"
+                `text-[11px] tracking-[0.4em] uppercase font-light transition-all duration-500 hover:text-[#C3091C] ${isActive ? "text-[#C3091C]" : "text-gray-400"
                 }`
               }
             >
@@ -44,8 +43,7 @@ export default function UserNavbar() {
             <NavLink
               to="/maisons"
               className={({ isActive }) =>
-                `text-[11px] tracking-[0.4em] uppercase font-light transition-all duration-500 hover:text-[#C3091C] ${
-                  isActive ? "text-[#C3091C]" : "text-gray-400"
+                `text-[11px] tracking-[0.4em] uppercase font-light transition-all duration-500 hover:text-[#C3091C] ${isActive ? "text-[#C3091C]" : "text-gray-400"
                 }`
               }
             >
@@ -55,8 +53,7 @@ export default function UserNavbar() {
             <NavLink
               to="/contact"
               className={({ isActive }) =>
-                `text-[11px] tracking-[0.4em] uppercase font-light transition-all duration-500 hover:text-[#C3091C] ${
-                  isActive ? "text-[#C3091C]" : "text-gray-400"
+                `text-[11px] tracking-[0.4em] uppercase font-light transition-all duration-500 hover:text-[#C3091C] ${isActive ? "text-[#C3091C]" : "text-gray-400"
                 }`
               }
             >
