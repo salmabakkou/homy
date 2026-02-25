@@ -8,6 +8,7 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     // Supprime le rôle stocké
     localStorage.removeItem("role");
+    localStorage.removeItem("user_email");
 
     // Redirige vers la page user
     navigate("/");

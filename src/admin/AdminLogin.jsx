@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FiMail, FiLock, FiArrowLeft } from "react-icons/fi";
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { syncWishlist } from "../store/wishlistSlice";
 import logo from "../assets/logo.png";
 
 export default function AdminLogin() {
@@ -13,6 +15,8 @@ export default function AdminLogin() {
   });
 
   const [errors, setErrors] = useState({});
+
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({
@@ -59,11 +63,15 @@ export default function AdminLogin() {
       formData.email === ADMIN_EMAIL &&
       formData.password === ADMIN_PASSWORD
     ) {
-      localStorage.setItem("role", "admin");   // ✅ ADMIN
+      localStorage.setItem("role", "admin");
+      localStorage.setItem("user_email", formData.email);
+      dispatch(syncWishlist());
       toast.success("Connexion réussie 👑");
       navigate("/admin");
     } else {
-      localStorage.setItem("role", "user");    // ✅ USER
+      localStorage.setItem("role", "user");
+      localStorage.setItem("user_email", formData.email);
+      dispatch(syncWishlist());
       toast.success("Connexion réussie 👤");
       navigate("/");
     }
@@ -111,11 +119,10 @@ export default function AdminLogin() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`w-full p-4 pl-12 rounded-2xl text-sm outline-none border ${
-                  errors.email
-                    ? "border-red-400"
-                    : "border-gray-200 focus:border-[#C3091C]"
-                }`}
+                className={`w-full p-4 pl-12 rounded-2xl text-sm outline-none border ${errors.email
+                  ? "border-red-400"
+                  : "border-gray-200 focus:border-[#C3091C]"
+                  }`}
                 placeholder="votre@email.com"
               />
             </div>
@@ -140,11 +147,10 @@ export default function AdminLogin() {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full p-4 pl-12 rounded-2xl text-sm outline-none border ${
-                  errors.password
-                    ? "border-red-400"
-                    : "border-gray-200 focus:border-[#C3091C]"
-                }`}
+                className={`w-full p-4 pl-12 rounded-2xl text-sm outline-none border ${errors.password
+                  ? "border-red-400"
+                  : "border-gray-200 focus:border-[#C3091C]"
+                  }`}
                 placeholder="••••••••"
               />
             </div>

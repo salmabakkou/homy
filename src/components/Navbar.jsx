@@ -7,8 +7,14 @@ import logo from "../assets/logo.png";
 export default function UserNavbar() {
   const [open, setOpen] = useState(false);
   const role = localStorage.getItem("role");
+  const userEmail = localStorage.getItem("user_email");
   const isLoggedIn = role !== null; // vrai si admin ou user
 
+  const handleLogout = () => {
+    localStorage.removeItem("role");
+    localStorage.removeItem("user_email");
+    window.location.href = "/";
+  };
 
   // ✅ récupérer les favoris depuis redux
   const favoritesCount = useSelector(
@@ -75,17 +81,18 @@ export default function UserNavbar() {
               )}
             </Link>
 
-            {isLoggedIn ? (
-              <button
-                onClick={() => {
-                  localStorage.removeItem("role"); // déconnexion
-                  window.location.href = "/"; // revenir à l'accueil
-                }}
-                className="px-8 py-2.5 border border-[#C3091C] text-[#C3091C] rounded-full text-[10px] tracking-[0.3em] font-light uppercase hover:bg-[#C3091C] hover:text-white transition-all duration-500"
-              >
-                Déconnexion
-              </button>
-            ) : (
+            {isLoggedIn && (
+              <div className="flex items-center gap-10">
+                <button
+                  onClick={handleLogout}
+                  className="px-8 py-2.5 border border-[#C3091C] text-[#C3091C] rounded-full text-[10px] tracking-[0.3em] font-light uppercase hover:bg-[#C3091C] hover:text-white transition-all duration-500"
+                >
+                  Déconnexion
+                </button>
+              </div>
+            )}
+
+            {!isLoggedIn && (
               <Link
                 to="/admin/login"
                 className="px-8 py-2.5 border border-[#C3091C] text-[#C3091C] rounded-full text-[10px] tracking-[0.3em] font-light uppercase hover:bg-[#C3091C] hover:text-white transition-all duration-500"
@@ -109,16 +116,30 @@ export default function UserNavbar() {
       {/* Mobile Menu */}
       {open && (
         <div className="md:hidden bg-white h-screen absolute w-full left-0 border-t border-gray-50 flex flex-col items-center pt-20 gap-10">
-          <NavLink to="/" onClick={() => setOpen(false)}>Accueil</NavLink>
-          <NavLink to="/maisons" onClick={() => setOpen(false)}>Maisons</NavLink>
-          <NavLink to="/contact" onClick={() => setOpen(false)}>Contact</NavLink>
-          <Link
-            to="/admin/login"
-            onClick={() => setOpen(false)}
-            className="mt-4 px-10 py-3 bg-[#C3091C] text-white rounded-full text-[10px] tracking-[0.3em] font-bold"
-          >
-            CONNEXION
-          </Link>
+          <NavLink to="/" onClick={() => setOpen(false)} className="text-[11px] tracking-[0.4em] uppercase text-gray-400">Accueil</NavLink>
+          <NavLink to="/maisons" onClick={() => setOpen(false)} className="text-[11px] tracking-[0.4em] uppercase text-gray-400">Maisons</NavLink>
+          <NavLink to="/contact" onClick={() => setOpen(false)} className="text-[11px] tracking-[0.4em] uppercase text-gray-400">Contact</NavLink>
+          <NavLink to="/favoris" onClick={() => setOpen(false)} className="text-[11px] tracking-[0.4em] uppercase text-gray-400">Ma Wishlist ({favoritesCount})</NavLink>
+
+          {isLoggedIn ? (
+            <div className="flex flex-col items-center gap-4 mt-10">
+              <span className="text-[9px] text-gray-400 uppercase tracking-widest">{userEmail}</span>
+              <button
+                onClick={handleLogout}
+                className="px-10 py-3 bg-[#C3091C] text-white rounded-full text-[10px] tracking-[0.3em] font-bold"
+              >
+                DÉCONNEXION
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/admin/login"
+              onClick={() => setOpen(false)}
+              className="mt-10 px-10 py-3 bg-[#C3091C] text-white rounded-full text-[10px] tracking-[0.3em] font-bold"
+            >
+              CONNEXION
+            </Link>
+          )}
         </div>
       )}
     </header>

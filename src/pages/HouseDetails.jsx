@@ -53,83 +53,83 @@ Retourne UNIQUEMENT un JSON valide :
 }
 `;
 
-const fetchAI = async () => {
-  if (loading) return; // 🔥 empêche double appel
+    const fetchAI = async () => {
+      if (loading) return; // 🔥 empêche double appel
 
-  setLoading(true);
-  setError(null);
+      setLoading(true);
+      setError(null);
 
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 1500
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: {
+                temperature: 0.2,
+                maxOutputTokens: 1500
+              }
+            })
           }
-        })
+        );
+
+        // 🔥 GESTION SPÉCIALE 429
+        if (res.status === 429) {
+          throw new Error("Quota dépassé. Réessayez dans quelques minutes.");
+        }
+
+        if (!res.ok) {
+          throw new Error(`Erreur API (${res.status})`);
+        }
+
+        const result = await res.json();
+
+        const text =
+          result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!text) {
+          throw new Error("Réponse vide");
+        }
+
+        const cleaned = text
+          .replace(/```json/g, "")
+          .replace(/```/g, "")
+          .trim();
+
+        const first = cleaned.indexOf("{");
+        const last = cleaned.lastIndexOf("}");
+
+        if (first === -1 || last === -1) {
+          throw new Error("Format JSON invalide");
+        }
+
+        const jsonString = cleaned.slice(first, last + 1);
+
+        let parsed;
+
+        try {
+          parsed = JSON.parse(jsonString);
+        } catch {
+          throw new Error("JSON cassé par l'IA");
+        }
+
+        setData(parsed);
+        localStorage.setItem(cacheKey, JSON.stringify(parsed));
+
+      } catch (err) {
+        console.error(err);
+
+        setError(
+          err.message.includes("Quota")
+            ? err.message
+            : "Impossible de générer les bons plans."
+        );
+      } finally {
+        setLoading(false);
       }
-    );
-
-    // 🔥 GESTION SPÉCIALE 429
-    if (res.status === 429) {
-      throw new Error("Quota dépassé. Réessayez dans quelques minutes.");
-    }
-
-    if (!res.ok) {
-      throw new Error(`Erreur API (${res.status})`);
-    }
-
-    const result = await res.json();
-
-    const text =
-      result?.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!text) {
-      throw new Error("Réponse vide");
-    }
-
-    const cleaned = text
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    const first = cleaned.indexOf("{");
-    const last = cleaned.lastIndexOf("}");
-
-    if (first === -1 || last === -1) {
-      throw new Error("Format JSON invalide");
-    }
-
-    const jsonString = cleaned.slice(first, last + 1);
-
-    let parsed;
-
-    try {
-      parsed = JSON.parse(jsonString);
-    } catch {
-      throw new Error("JSON cassé par l'IA");
-    }
-
-    setData(parsed);
-    localStorage.setItem(cacheKey, JSON.stringify(parsed));
-
-  } catch (err) {
-    console.error(err);
-
-    setError(
-      err.message.includes("Quota")
-        ? err.message
-        : "Impossible de générer les bons plans."
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+    };
     fetchAI();
   }, [address, city]);
 
@@ -234,10 +234,18 @@ export default function HouseDetails() {
 
       <div className="mt-12">
         <button
-          onClick={() => navigate(`/checkout/${house.id}`)}
-          className="w-full bg-black text-white py-4 rounded-2xl font-bold hover:opacity-90"
+          onClick={() => {
+            const role = localStorage.getItem("role");
+            if (!role) {
+              toast.error("Veuillez vous connecter pour réserver");
+              navigate("/admin/login");
+            } else {
+              navigate(`/checkout/${house.id}`);
+            }
+          }}
+          className="w-full bg-[#C3091C] text-white py-5 rounded-2xl font-bold uppercase tracking-[0.2em] text-xs hover:bg-black transition-all duration-500 shadow-xl"
         >
-          Réserver maintenant
+          Réserver cette propriété
         </button>
       </div>
     </div>

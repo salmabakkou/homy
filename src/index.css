@@ -21,7 +21,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, .font-serif {
+h1,
+h2,
+h3,
+h4,
+.font-serif {
   font-family: var(--font-serif);
 }
 
@@ -33,4 +37,12 @@ h1, h2, h3, h4, .font-serif {
 /* Custom transitions */
 .transition-luxury {
   transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Global button cursor */
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"] {
+  cursor: pointer !important;
 }
