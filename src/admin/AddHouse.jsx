@@ -3,9 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addHouseThunk } from '../store/housesSlice';
 import { uploadImageToCloudinary } from '../services/cloudinary';
 import toast from 'react-hot-toast';
-import { 
-  FiUpload, FiHome, FiMapPin, FiDollarSign, FiMaximize, 
-  FiX, FiCalendar, FiPlus, FiEdit2, FiLayers, FiChevronDown 
+import {
+  FiUpload, FiHome, FiMapPin, FiDollarSign, FiMaximize,
+  FiX, FiCalendar, FiPlus, FiEdit2, FiLayers, FiChevronDown, FiLoader
 } from 'react-icons/fi';
 import { FaBed, FaBath, FaCity } from 'react-icons/fa';
 
@@ -90,14 +90,16 @@ export default function AddHouse() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 p-4 md:p-10">
+    <div className="w-full min-h-screen bg-[#FDFCF9] p-4 md:p-10">
       <div className="max-w-4xl mx-auto">
-        
-        <div className="mb-10 flex flex-col items-center md:items-start">
-          <span className="text-[#C3091C] font-serif text-3xl tracking-widest uppercase font-bold">Homy</span>
-          <h1 className="text-[10px] text-gray-400 tracking-[0.3em] uppercase mt-1 italic font-bold">
-            Dashboard / Création de Fiche
+
+        <div className="mb-10 text-center md:text-left">
+          <h1 className="text-2xl md:text-3xl font-serif font-black text-[#C3091C] leading-tight uppercase tracking-tight">
+            Ajouter une Propriété
           </h1>
+          <p className="flex items-center justify-center md:justify-start gap-2 text-gray-400 mt-3 font-bold uppercase tracking-[0.4em] text-[10px]">
+            Intégration d'un nouveau bien d'exception
+          </p>
         </div>
 
         <div className="bg-white rounded-[2.5rem] p-6 md:p-12 shadow-xl border border-gray-100">
@@ -143,6 +145,7 @@ export default function AddHouse() {
                   <input type="number" name="price" min="0" value={formData.price} onChange={handleChange}
                     className="w-full p-3.5 pl-10 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C]" />
                 </div>
+                {errors.price && <p className="text-red-500 text-[10px] mt-1 ml-2">{errors.price}</p>}
               </div>
 
               <div className="space-y-2">
@@ -152,6 +155,7 @@ export default function AddHouse() {
                   <input type="number" name="surface" min="0" value={formData.surface} onChange={handleChange}
                     className="w-full p-3.5 pl-10 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C]" />
                 </div>
+                {errors.surface && <p className="text-red-500 text-[10px] mt-1 ml-2">{errors.surface}</p>}
               </div>
 
               <div className="space-y-2">
@@ -161,6 +165,7 @@ export default function AddHouse() {
                   <input type="number" name="rooms" min="0" value={formData.rooms} onChange={handleChange}
                     className="w-full p-3.5 pl-10 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C]" />
                 </div>
+                {errors.rooms && <p className="text-red-500 text-[10px] mt-1 ml-2">{errors.rooms}</p>}
               </div>
 
               <div className="space-y-2">
@@ -170,6 +175,7 @@ export default function AddHouse() {
                   <input type="number" name="bathrooms" min="0" value={formData.bathrooms} onChange={handleChange}
                     className="w-full p-3.5 pl-10 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C]" />
                 </div>
+                {errors.bathrooms && <p className="text-red-500 text-[10px] mt-1 ml-2">{errors.bathrooms}</p>}
               </div>
             </div>
 
@@ -178,7 +184,7 @@ export default function AddHouse() {
                 <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic">Type de bien</label>
                 <div className="relative">
                   <FiLayers className="absolute top-4 left-4 text-[#C3091C]" />
-                  <select name="type" value={formData.type} onChange={handleChange} 
+                  <select name="type" value={formData.type} onChange={handleChange}
                     className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none appearance-none border border-transparent focus:border-[#C3091C] cursor-pointer">
                     <option>Appartement</option><option>Villa</option><option>Maison</option><option>Studio</option>
                   </select>
@@ -188,7 +194,7 @@ export default function AddHouse() {
               <div className="space-y-2">
                 <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic">Disponibilité</label>
                 <div className="relative">
-                  <select name="status" value={formData.status} onChange={handleChange} 
+                  <select name="status" value={formData.status} onChange={handleChange}
                     className="w-full p-4 bg-gray-50 rounded-2xl text-sm outline-none appearance-none border border-transparent focus:border-[#C3091C] cursor-pointer">
                     <option value="available">Disponible</option><option value="reserved">Réservé</option>
                   </select>
@@ -250,9 +256,9 @@ export default function AddHouse() {
                 {imageFiles.map((file, index) => (
                   <div key={index} className="relative shrink-0 w-28 h-28 rounded-3xl overflow-hidden shadow-md group">
                     <img src={URL.createObjectURL(file)} className="w-full h-full object-cover" />
-                    <button type="button" onClick={() => setImageFiles(imageFiles.filter((_, i) => i !== index))} 
+                    <button type="button" onClick={() => setImageFiles(imageFiles.filter((_, i) => i !== index))}
                       className="absolute inset-0 bg-red-600/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      <FiX size={20} className="text-white"/>
+                      <FiX size={20} className="text-white" />
                     </button>
                   </div>
                 ))}
@@ -266,8 +272,15 @@ export default function AddHouse() {
               {errors.description && <p className="text-red-500 text-[10px] mt-1 ml-2">{errors.description}</p>}
             </div>
 
-            <button type="submit" disabled={loading} className="w-full bg-[#C3091C] text-white py-6 rounded-4xl font-bold text-[11px] tracking-[0.4em] uppercase shadow-2xl hover:bg-black transition-all active:scale-[0.98] disabled:opacity-50">
-              {loading ? 'PUBLICATION...' : 'ENREGISTRER LA PROPRIÉTÉ'}
+            <button type="submit" disabled={loading} className="w-full bg-[#C3091C] text-white py-6 rounded-4xl font-bold text-[11px] tracking-[0.4em] uppercase shadow-2xl hover:bg-black transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-3">
+              {loading ? (
+                <>
+                  <FiLoader className="animate-spin text-lg" />
+                  PUBLICATION...
+                </>
+              ) : (
+                'ENREGISTRER LA PROPRIÉTÉ'
+              )}
             </button>
 
           </form>

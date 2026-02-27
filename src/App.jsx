@@ -23,41 +23,70 @@ import Reservations from "./admin/Reservations";
 
 export default function App() {
   return (
-      <BrowserRouter>
-      <Toaster 
-        position="top-right" 
-        reverseOrder={false} 
+    <BrowserRouter>
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
+        toastOptions={{
+          style: {
+            border: '1px solid #f3f4f6',
+            padding: '16px 24px',
+            color: '#1f2937',
+            background: '#ffffff',
+            borderRadius: '9999px',
+            fontFamily: 'system-ui, sans-serif',
+            fontSize: '10px',
+            fontWeight: '900',
+            textTransform: 'uppercase',
+            letterSpacing: '0.2em',
+            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+          },
+          success: {
+            icon: null,
+            style: {
+              color: '#10b981',
+              border: '1px solid #10b981',
+            },
+          },
+          error: {
+            icon: null,
+            style: {
+              color: '#C3091C',
+              border: '1px solid #C3091C',
+            },
+          },
+        }}
       />
-        <Routes>
+      <Routes>
 
-          {/* User Routes */}
-          <Route element={<UserLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/maisons" element={<Houses />} />
-            <Route path="/maisons/:id" element={<HouseDetails />} />
-            <Route path="/checkout/:id" element={<Checkout />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/favoris" element={<Favorites />} />
-          </Route>
+        {/* User Routes */}
+        <Route element={<UserLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/maisons" element={<Houses />} />
+          <Route path="/maisons/:id" element={<HouseDetails />} />
+          <Route path="/checkout/:id" element={<Checkout />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/favoris" element={<Favorites />} />
+        </Route>
 
-          {/* Admin Routes */}
-          <Route path="/admin/login" element={<AdminLogin />} />
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
 
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<DashboardHome />} />
-            <Route path="addHouse" element={<AddHouse />} />
-            <Route path="reservations" element={<Reservations />} />
-          </Route>
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<DashboardHome />} />
+          <Route path="addHouse" element={<AddHouse />} />
+          <Route path="reservations" element={<Reservations />} />
+        </Route>
 
 
-        </Routes>
-      </BrowserRouter>
+      </Routes>
+    </BrowserRouter>
   );
 }

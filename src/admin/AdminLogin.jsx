@@ -66,20 +66,20 @@ export default function AdminLogin() {
       localStorage.setItem("role", "admin");
       localStorage.setItem("user_email", formData.email);
       dispatch(syncWishlist());
-      toast.success("Connexion réussie 👑");
+      toast.success("Connexion réussie");
       navigate("/admin");
     } else {
       localStorage.setItem("role", "user");
       localStorage.setItem("user_email", formData.email);
       dispatch(syncWishlist());
-      toast.success("Connexion réussie 👤");
+      toast.success("Connexion réussie");
       navigate("/");
     }
   };
 
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] flex items-center justify-center px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-[#FDFCF9] flex items-center justify-center px-4 relative overflow-hidden">
 
       {/* Background */}
       <div className="absolute w-125 h-125 bg-[#C3091C]/10 rounded-full blur-3xl -top-32 -left-32"></div>
@@ -98,7 +98,7 @@ export default function AdminLogin() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <img src={logo} alt="Homy" className="h-10 mb-4" />
-          <h1 className="text-2xl font-black tracking-widest text-gray-900 uppercase">
+          <h1 className="text-xl md:text-2xl font-serif font-black tracking-widest text-[#C3091C] uppercase leading-tight text-center">
             Connexion
           </h1>
         </div>

@@ -18,7 +18,7 @@ export default function Sidebar({ onLogout }) {
   return (
     <>
       {/* BOUTON MOBILE */}
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className="lg:hidden fixed top-3 left-3 z-60 p-2 bg-white rounded-md shadow-sm border border-gray-100 text-[#C3091C]"
       >
@@ -37,16 +37,16 @@ export default function Sidebar({ onLogout }) {
         border-r border-gray-200 shadow-[4px_0_15px_rgba(0,0,0,0.04)]
         ${isOpen ? 'w-60 translate-x-0' : 'w-60 -translate-x-full lg:translate-x-0'} 
       `}>
-        
+
         {/* LOGO & HOMY STYLE ÉDITORIAL */}
         <div className="py-8 px-6 border-b border-gray-50">
           <Link to="/admin" className="flex items-center gap-3">
             <img src={logo} alt="Logo" className="w-7 h-7 object-contain" />
             <div className="flex flex-col">
-              <span className="text-xl font-serif tracking-[0.15em] text-[#C3091C] leading-none uppercase">
+              <span className="text-2xl font-serif tracking-[0.1em] text-[#EB2411] leading-none uppercase">
                 Homy
               </span>
-              <span className="text-[9px] text-gray-400 font-bold tracking-[0.2em] mt-1 italic uppercase">
+              <span className="text-[8px] text-gray-400 font-black tracking-[0.4em] mt-1.5 uppercase">
                 Administration
               </span>
             </div>
@@ -60,16 +60,15 @@ export default function Sidebar({ onLogout }) {
               key={item.name}
               to={item.href}
               onClick={() => setIsOpen(false)}
-              className={`flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-all duration-200 group ${
-                isActive(item.href)
-                  ? 'bg-[#C3091C] text-white shadow-sm font-bold'
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
+              className={`flex items-center space-x-3 px-4 py-2.5 rounded-lg transition-all duration-200 group ${isActive(item.href)
+                ? 'bg-[#C3091C] text-white shadow-sm font-bold'
+                : 'text-gray-600 hover:bg-gray-50'
+                }`}
             >
               <div className={`${isActive(item.href) ? 'text-white' : 'text-[#C3091C]'}`}>
                 {item.icon}
               </div>
-              <span className="text-[13px] tracking-tight italic">
+              <span className="text-[11px] tracking-[0.15em] font-serif group-hover:tracking-[0.2em] transition-all">
                 {item.name}
               </span>
             </Link>
@@ -80,7 +79,7 @@ export default function Sidebar({ onLogout }) {
         <div className="p-4 border-t border-gray-100 mt-auto bg-gray-50/30">
           <button
             onClick={onLogout}
-            className="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-gray-500 text-[11px] font-bold hover:bg-red-50 hover:text-[#C3091C] transition-all tracking-widest"
+            className="flex items-center space-x-3 w-full px-4 py-2.5 rounded-lg text-gray-400 text-[10px] font-black hover:bg-red-50 hover:text-[#EB2411] transition-all tracking-[0.3em]"
           >
             <FiLogOut size={16} />
             <span>DÉCONNEXION</span>

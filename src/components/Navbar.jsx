@@ -29,7 +29,7 @@ export default function UserNavbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-4">
             <img src={logo} alt="Logo" className="h-9 w-auto" />
-            <span className="text-xl font-light tracking-[0.5em] text-[#C3091C] uppercase">
+            <span className="text-2xl font-serif tracking-[0.3em] text-[#EB2411] uppercase">
               Homy
             </span>
           </Link>
@@ -39,8 +39,7 @@ export default function UserNavbar() {
             <NavLink
               to="/"
               className={({ isActive }) =>
-                `text-[11px] tracking-[0.4em] uppercase font-light transition-all duration-500 hover:text-[#C3091C] ${isActive ? "text-[#C3091C]" : "text-gray-400"
-                }`
+                `text-[10px] tracking-[0.4em] uppercase font-bold transition-all duration-500 hover:text-[#EB2411] ${isActive ? "text-[#EB2411]" : "text-gray-500"}`
               }
             >
               Accueil
@@ -49,8 +48,7 @@ export default function UserNavbar() {
             <NavLink
               to="/maisons"
               className={({ isActive }) =>
-                `text-[11px] tracking-[0.4em] uppercase font-light transition-all duration-500 hover:text-[#C3091C] ${isActive ? "text-[#C3091C]" : "text-gray-400"
-                }`
+                `text-[10px] tracking-[0.4em] uppercase font-bold transition-all duration-500 hover:text-[#EB2411] ${isActive ? "text-[#EB2411]" : "text-gray-500"}`
               }
             >
               Maisons
@@ -59,8 +57,7 @@ export default function UserNavbar() {
             <NavLink
               to="/contact"
               className={({ isActive }) =>
-                `text-[11px] tracking-[0.4em] uppercase font-light transition-all duration-500 hover:text-[#C3091C] ${isActive ? "text-[#C3091C]" : "text-gray-400"
-                }`
+                `text-[10px] tracking-[0.4em] uppercase font-bold transition-all duration-500 hover:text-[#EB2411] ${isActive ? "text-[#EB2411]" : "text-gray-500"}`
               }
             >
               Contact
@@ -85,7 +82,7 @@ export default function UserNavbar() {
               <div className="flex items-center gap-10">
                 <button
                   onClick={handleLogout}
-                  className="px-8 py-2.5 border border-[#C3091C] text-[#C3091C] rounded-full text-[10px] tracking-[0.3em] font-light uppercase hover:bg-[#C3091C] hover:text-white transition-all duration-500"
+                  className="px-8 py-2.5 border border-[#EB2411] text-[#EB2411] rounded-full text-[9px] tracking-[0.3em] font-black uppercase hover:bg-[#EB2411] hover:text-white transition-all duration-500 shadow-sm"
                 >
                   Déconnexion
                 </button>
@@ -95,7 +92,7 @@ export default function UserNavbar() {
             {!isLoggedIn && (
               <Link
                 to="/admin/login"
-                className="px-8 py-2.5 border border-[#C3091C] text-[#C3091C] rounded-full text-[10px] tracking-[0.3em] font-light uppercase hover:bg-[#C3091C] hover:text-white transition-all duration-500"
+                className="px-8 py-2.5 border border-[#EB2411] text-[#EB2411] rounded-full text-[9px] tracking-[0.3em] font-black uppercase hover:bg-[#EB2411] hover:text-white transition-all duration-500 shadow-sm"
               >
                 Connexion
               </Link>
@@ -123,7 +120,6 @@ export default function UserNavbar() {
 
           {isLoggedIn ? (
             <div className="flex flex-col items-center gap-4 mt-10">
-              <span className="text-[9px] text-gray-400 uppercase tracking-widest">{userEmail}</span>
               <button
                 onClick={handleLogout}
                 className="px-10 py-3 bg-[#C3091C] text-white rounded-full text-[10px] tracking-[0.3em] font-bold"

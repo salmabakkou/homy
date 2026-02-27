@@ -15,7 +15,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FDFCF9]">
       {/* Passe la fonction handleLogout à Sidebar */}
       <Sidebar onLogout={handleLogout} />
 

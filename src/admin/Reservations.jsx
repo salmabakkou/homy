@@ -21,37 +21,42 @@ export default function Reservations() {
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] p-10">
+    <div className="min-h-screen bg-[#FDFCF9] p-10">
       <div className="max-w-7xl mx-auto">
 
         {/* HEADER */}
-        <div className="mb-12">
-          <h1 className="text-3xl font-black text-gray-900">
+        <div className="mb-12 text-center md:text-left">
+          <h1 className="text-2xl md:text-3xl font-serif font-black text-[#C3091C] leading-tight uppercase tracking-tight">
             Réservations
           </h1>
-          <p className="text-gray-400 italic">
-            Gestion des demandes clients
+          <p className="flex items-center justify-center md:justify-start gap-2 text-gray-400 mt-3 font-bold uppercase tracking-[0.4em] text-[10px]">
+            Suivi et gestion des requêtes clients
           </p>
         </div>
 
         {/* LOADING */}
         {loading && (
-          <div className="py-20 text-center text-gray-400 italic">
-            Chargement des réservations...
+          <div className="flex flex-col items-center justify-center py-32">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#C3091C] mb-4"></div>
+            <div className="text-gray-400 font-bold uppercase tracking-[0.4em] text-[10px]">
+              Chargement en cours...
+            </div>
           </div>
         )}
 
         {/* ERROR */}
         {error && (
-          <div className="py-20 text-center text-red-500">
+          <div className="text-center py-32 text-[#C3091C] font-bold uppercase tracking-[0.4em] text-[10px]">
             {error}
           </div>
         )}
 
         {/* EMPTY */}
         {!loading && data.length === 0 && (
-          <div className="py-20 text-center text-gray-400 italic">
-            Aucune réservation pour le moment
+          <div className="flex flex-col items-center justify-center py-32">
+            <div className="text-gray-400 font-bold uppercase tracking-[0.4em] text-[10px]">
+              Aucune réservation pour le moment
+            </div>
           </div>
         )}
 
@@ -70,7 +75,7 @@ export default function Reservations() {
               </thead>
 
               <tbody>
-                {data.map((reservation) => (
+                {[...data].reverse().map((reservation) => (
                   <tr
                     key={reservation.id}
                     className="border-t hover:bg-gray-50 transition"

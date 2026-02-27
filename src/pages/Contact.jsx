@@ -56,7 +56,7 @@ export default function Contact() {
         return;
       }
       await axios.post(n8nUrl, formData);
-      toast.success("Message envoyé avec succès ✨");
+      toast.success("Message envoyé avec succès");
       setFormData({
         name: "",
         email: "",
@@ -69,7 +69,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F9F9] px-4 py-16">
+    <div className="min-h-screen bg-[#FDFCF9] px-4 py-16">
       <div className="max-w-4xl mx-auto">
 
         {/* CARD */}
@@ -77,11 +77,11 @@ export default function Contact() {
 
           {/* HEADER */}
           <div className="mb-10 text-center">
-            <h1 className="text-3xl font-black tracking-tight text-gray-900">
-              Contactez-nous
+            <h1 className="text-2xl md:text-3xl font-serif font-black tracking-tight text-[#C3091C] uppercase leading-tight">
+              Notre Conciergerie
             </h1>
-            <p className="text-gray-400 italic mt-2">
-              Une question ? Un projet ? Parlons-en.
+            <p className="text-[10px] font-bold text-gray-400 mt-4 uppercase tracking-[0.4em]">
+              Un accompagnement sur-mesure pour votre séjour
             </p>
           </div>
 

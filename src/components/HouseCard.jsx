@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FiEdit3, FiTrash2, FiHeart, FiMaximize, FiCalendar, FiMapPin, FiArrowUpRight } from 'react-icons/fi';
-import { FaBed, FaBath } from 'react-icons/fa'; 
+import { FaBed, FaBath } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
 import { addFavorite, removeFavorite } from '../store/wishlistSlice';
@@ -9,10 +9,25 @@ import { addFavorite, removeFavorite } from '../store/wishlistSlice';
 export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) {
   const dispatch = useDispatch();
   const favorites = useSelector((state) => state.wishlist.favorites);
+  const reservations = useSelector((state) => state.reservations.data || []);
   const primaryRed = "#C3091C";
 
   // Vérifie si la maison est déjà en favoris
   const isFavorite = favorites.some(f => f.id === house.id);
+
+  // 1. Récupération de la date locale
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+  // 2. Extraire UNIQUEMENT les réservations liées à cette maison
+  const houseReservations = reservations.filter(res => String(res.houseId) === String(house.id));
+
+  // 3. Chercher si la maison a une réservation "ACTIVE" pour la date d'aujourd'hui
+  const activeReservation = houseReservations.find(res => res.from <= today && res.to >= today);
+
+  // 4. Déterminer le statut final strict et la date de libération si occupé
+  const currentStatus = activeReservation ? 'reserved' : 'available';
+  const displayReservedTo = activeReservation ? activeReservation.to : null;
 
   const handleToggleFavorite = () => {
     if (isFavorite) {
@@ -26,7 +41,7 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
 
   return (
     <div className="group bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col relative w-full aspect-square">
-    
+
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img
@@ -58,18 +73,18 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
 
       {/* BADGE STATUT */}
       <div className="absolute top-4 left-4 z-20">
-        <span 
+        <span
           className="px-4 py-1.5 rounded-full text-[9px] font-black tracking-[0.2em] uppercase text-white shadow-lg"
-          style={{ backgroundColor: house.status === 'available' ? '#10b981' : primaryRed }}
+          style={{ backgroundColor: currentStatus === 'available' ? '#10b981' : primaryRed }}
         >
-          {house.status === 'available' ? 'Libre' : 'Occupé'}
+          {currentStatus === 'available' ? 'Libre' : 'Occupé'}
         </span>
       </div>
 
       {/* CONTENU BAS */}
       <div className="mt-auto p-5 z-10 relative text-white">
         <div className="mb-3">
-          <h2 className="text-lg font-bold leading-tight truncate drop-shadow-md uppercase tracking-tight">
+          <h2 className="text-sm font-bold leading-tight truncate drop-shadow-md uppercase tracking-wider">
             {house.title}
           </h2>
           <div className="flex justify-between items-end mt-1">
@@ -78,7 +93,7 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
             </span>
             <p className="text-white/80 text-[10px] font-medium flex items-center gap-1">
               <FiMapPin size={12} style={{ color: primaryRed }} />
-              {house.address}
+              {house.city}
             </p>
           </div>
         </div>
@@ -97,19 +112,19 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
         </div>
 
         {/* Actions & Dates */}
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <Link
-              to={`/maisons/${house.id}`}
-              className="flex-1 h-11 bg-white text-black rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 shadow-xl hover:text-white"
-              style={{ '--hover-bg': primaryRed }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = primaryRed}
-              onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
-            >
-              DÉTAILS <FiArrowUpRight size={14} />
-            </Link>
+        <div className="flex flex-col gap-2 mt-4">
+          {!isAdmin && (
+            <div className="flex items-center gap-2">
+              <Link
+                to={`/maisons/${house.id}`}
+                className="flex-1 h-11 bg-white text-black rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 shadow-xl hover:text-white"
+                style={{ '--hover-bg': primaryRed }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = primaryRed}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
+              >
+                DÉTAILS <FiArrowUpRight size={14} />
+              </Link>
 
-            {!isAdmin && (
               <button
                 onClick={handleToggleFavorite}
                 className="w-11 h-11 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-2xl flex items-center justify-center hover:bg-white transition-all shrink-0"
@@ -118,14 +133,14 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
               >
                 <FiHeart size={18} style={{ color: isFavorite ? primaryRed : 'white' }} />
               </button>
-            )}
-          </div>
+            </div>
+          )}
 
-          <div className="h-4 flex items-center"> 
-            {house.status !== 'available' && house.reservedTo && (
+          <div className="h-4 flex items-center mt-1">
+            {currentStatus === 'reserved' && displayReservedTo && (
               <div className="text-[10px] text-white/90 font-bold italic flex items-center gap-2 animate-pulse">
                 <FiCalendar size={12} style={{ color: primaryRed }} />
-                <span>Jusqu'au {house.reservedTo}</span>
+                <span>Jusqu'au {displayReservedTo}</span>
               </div>
             )}
           </div>

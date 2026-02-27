@@ -119,7 +119,7 @@ export default function Home() {
               <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gray-500">Collection Exclusive 2026</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-serif font-black leading-tight text-gray-900">
+            <h1 className="text-3xl md:text-5xl font-serif font-black leading-tight text-gray-900">
               Trouvez Votre <br />
               <span className="text-[#C3091C] italic">Havre de Paix</span> <br />
               au Maroc
@@ -167,22 +167,41 @@ export default function Home() {
       {/* --- PROPERTY GRID --- */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-8">
-          <div className="mb-16 space-y-4">
-            <h2 className="text-[#C3091C] font-bold uppercase tracking-[0.4em] text-[9px]">Dernières Opportunités</h2>
-            <h3 className="text-4xl font-serif font-bold text-gray-900">Nos Résidences de Prestige</h3>
+          <div className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div className="space-y-4">
+              <h2 className="text-[#C3091C] font-bold uppercase tracking-[0.4em] text-[9px]">Dernières Opportunités</h2>
+              <h3 className="text-2xl md:text-3xl font-serif font-bold text-gray-900">Nos Résidences de Prestige</h3>
+            </div>
+            <Link to="/maisons" className="group flex items-center gap-3 text-xs font-black uppercase tracking-[0.2em] text-gray-800 hover:text-[#C3091C] transition-colors">
+              VOIR TOUTES LES MAISONS
+              <div className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center group-hover:border-[#C3091C] group-hover:bg-[#C3091C] group-hover:text-white transition-all duration-300">
+                <FiArrowRight size={16} className="transform group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
           </div>
 
-          <div className="property-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {loading ? (
-              [1, 2, 3].map(n => <div key={n} className="h-96 rounded-3xl bg-gray-50 animate-pulse" />)
-            ) : (
-              houses.slice(0, 3).map(house => (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-32 w-full">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#C3091C] mb-4"></div>
+              <div className="text-gray-400 font-bold uppercase tracking-[0.4em] text-[10px]">
+                Chargement en cours...
+              </div>
+            </div>
+          ) : !loading && houses.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-32 w-full">
+              <div className="text-gray-400 font-bold uppercase tracking-[0.4em] text-[10px]">
+                Aucune propriété trouvée
+              </div>
+            </div>
+          ) : (
+            <div className="property-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+              {houses.slice(0, 3).map(house => (
                 <div key={house.id} className="property-card">
                   <HouseCard house={house} />
                 </div>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -192,7 +211,7 @@ export default function Home() {
           <div className="relative rounded-[3rem] bg-[#C3091C] p-12 md:p-24 overflow-hidden group">
             <img src={homy3} className="absolute inset-0 w-full h-full object-cover opacity-20 grayscale group-hover:scale-110 transition-transform duration-1000" alt="" />
             <div className="relative z-10 text-center space-y-10">
-              <h2 className="text-white text-4xl md:text-6xl font-serif font-bold max-w-3xl mx-auto leading-tight">
+              <h2 className="text-white text-3xl md:text-4xl font-serif font-bold max-w-3xl mx-auto leading-tight">
                 Prêt à Découvrir la Maison de Vos <span className="italic font-normal">Rêves ?</span>
               </h2>
               <button
@@ -209,13 +228,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* --- MINI FOOTER --- */}
-      <footer className="py-12 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-8 flex justify-between items-center text-[9px] font-bold uppercase tracking-[0.4em] text-gray-400">
-          <span>Homy Luxury Realty</span>
-          <span>© 2026 Tous droits réservés</span>
-        </div>
-      </footer>
 
     </div>
   );

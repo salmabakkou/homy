@@ -6,7 +6,7 @@
 }
 
 :root {
-  --rouge-premium: #EB2411;
+  --rouge-premium: #C3091C;
   --or-premium: #D4AF37;
 }
 
@@ -30,7 +30,7 @@ h4,
 }
 
 ::selection {
-  background-color: #EB2411;
+  background-color: #C3091C;
   color: white;
 }
 
