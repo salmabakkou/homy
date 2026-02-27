@@ -89,7 +89,7 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
           </h2>
           <div className="flex justify-between items-end mt-1">
             <span className="text-xl font-black drop-shadow-md">
-              {house.price}<span className="text-[10px] font-light ml-1 text-white/70 tracking-normal">MAD</span>
+              {house.price}<span className="text-[10px] font-light ml-1 text-white/70 tracking-normal">MAD <span className="text-[8px] opacity-80">/ nuit</span></span>
             </span>
             <p className="text-white/80 text-[10px] font-medium flex items-center gap-1">
               <FiMapPin size={12} style={{ color: primaryRed }} />

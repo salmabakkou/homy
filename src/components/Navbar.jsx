@@ -22,14 +22,14 @@ export default function UserNavbar() {
   );
 
   return (
-    <header className="w-full bg-white border-b border-gray-100 sticky top-0 z-100">
-      <div className="max-w-7xl mx-auto px-8">
-        <div className="flex items-center justify-between h-24">
+    <header className="w-full bg-white border-b border-gray-100 sticky top-0 z-[100]">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
+        <div className="flex items-center justify-between h-20 md:h-24">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-4">
-            <img src={logo} alt="Logo" className="h-9 w-auto" />
-            <span className="text-2xl font-serif tracking-[0.3em] text-[#EB2411] uppercase">
+          <Link to="/" className="flex items-center gap-2 md:gap-4">
+            <img src={logo} alt="Logo" className="h-7 md:h-9 w-auto" />
+            <span className="text-xl md:text-2xl font-serif tracking-[0.2em] md:tracking-[0.3em] text-[#EB2411] uppercase">
               Homy
             </span>
           </Link>
@@ -112,7 +112,7 @@ export default function UserNavbar() {
 
       {/* Mobile Menu */}
       {open && (
-        <div className="md:hidden bg-white h-screen absolute w-full left-0 border-t border-gray-50 flex flex-col items-center pt-20 gap-10">
+        <div className="md:hidden bg-white fixed inset-x-0 top-20 bottom-0 z-[99] border-t border-gray-50 flex flex-col items-center pt-10 pb-10 gap-8 overflow-y-auto">
           <NavLink to="/" onClick={() => setOpen(false)} className="text-[11px] tracking-[0.4em] uppercase text-gray-400">Accueil</NavLink>
           <NavLink to="/maisons" onClick={() => setOpen(false)} className="text-[11px] tracking-[0.4em] uppercase text-gray-400">Maisons</NavLink>
           <NavLink to="/contact" onClick={() => setOpen(false)} className="text-[11px] tracking-[0.4em] uppercase text-gray-400">Contact</NavLink>

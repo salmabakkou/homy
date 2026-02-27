@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchHouses, deleteHouseThunk, updateHouseThunk } from '../store/housesSlice';
+import { fetchReservations } from '../store/reservationsSlice';
 import { uploadImageToCloudinary } from '../services/cloudinary';
 import HouseCard from '../components/HouseCard';
 import toast from 'react-hot-toast';
@@ -37,6 +38,7 @@ export default function DashboardHome() {
 
   useEffect(() => {
     dispatch(fetchHouses());
+    dispatch(fetchReservations());
   }, [dispatch]);
 
   // Anti-scroll quand une modale est ouverte
@@ -176,10 +178,10 @@ export default function DashboardHome() {
             <FiSearch className="absolute top-1/2 left-5 -translate-y-1/2 text-[#C3091C]" />
             <input
               type="text"
-              placeholder="Rechercher par nom ou localisation..."
+              placeholder="Rechercher par nom..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-14 pr-4 py-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-[#C3091C]/30 transition-all"
+              className="w-full pl-14 pr-4 py-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-[#C3091C]/30 transition-all text-[11px] md:text-sm placeholder:text-[10px] md:placeholder:text-sm"
             />
           </div>
           <div className="relative">
@@ -187,7 +189,7 @@ export default function DashboardHome() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full pl-14 pr-4 py-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-[#C3091C]/30 appearance-none cursor-pointer"
+              className="w-full pl-14 pr-4 py-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-[#C3091C]/30 appearance-none cursor-pointer text-[11px] md:text-sm"
             >
               <option value="all">Tous les statuts</option>
               <option value="available">Libre</option>

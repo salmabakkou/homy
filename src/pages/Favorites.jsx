@@ -1,10 +1,18 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchHouses } from '../store/housesSlice';
+import { fetchReservations } from '../store/reservationsSlice';
 import { FiMapPin } from 'react-icons/fi';
 import HouseCard from '../components/HouseCard';
 
 export default function FavoritesPage() {
+  const dispatch = useDispatch();
   const favorites = useSelector((state) => state.wishlist?.favorites || []);
+
+  useEffect(() => {
+    dispatch(fetchHouses());
+    dispatch(fetchReservations());
+  }, [dispatch]);
 
   if (favorites.length === 0) {
     return (

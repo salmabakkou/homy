@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchHouses } from '../store/housesSlice';
+import { fetchReservations } from '../store/reservationsSlice';
 import HouseCard from '../components/HouseCard';
 import { FiSearch, FiMapPin } from 'react-icons/fi';
 import heroImg from '../assets/homy1.jpg';
@@ -16,6 +17,7 @@ export default function Houses() {
 
   useEffect(() => {
     dispatch(fetchHouses());
+    dispatch(fetchReservations());
   }, [dispatch]);
 
   // --- FILTRAGE SIMPLE ---
