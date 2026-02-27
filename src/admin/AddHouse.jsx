@@ -107,10 +107,10 @@ export default function AddHouse() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
-                <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic">Titre</label>
+                <label htmlFor="title" className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic">Titre</label>
                 <div className="relative">
                   <FiHome className="absolute top-4 left-4 text-[#C3091C]" />
-                  <input type="text" name="title" value={formData.title} onChange={handleChange}
+                  <input type="text" id="title" name="title" value={formData.title} onChange={handleChange}
                     className="w-full p-4 pl-12 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C] transition-all" />
                 </div>
                 {errors.title && <p className="text-red-500 text-[10px] mt-1 ml-2">{errors.title}</p>}
@@ -139,10 +139,10 @@ export default function AddHouse() {
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-2">
-                <label className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic">Prix (MAD)</label>
+                <label htmlFor="price" className="text-[10px] text-gray-400 ml-2 uppercase font-bold italic">Prix (MAD)</label>
                 <div className="relative">
                   <FiDollarSign className="absolute top-4 left-4 text-[#C3091C] text-xs" />
-                  <input type="number" name="price" min="0" value={formData.price} onChange={handleChange}
+                  <input type="number" id="price" name="price" min="0" value={formData.price} onChange={handleChange}
                     className="w-full p-3.5 pl-10 bg-gray-50 rounded-2xl text-sm outline-none border border-transparent focus:border-[#C3091C]" />
                 </div>
                 {errors.price && <p className="text-red-500 text-[10px] mt-1 ml-2">{errors.price}</p>}
