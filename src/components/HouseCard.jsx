@@ -117,21 +117,16 @@ export default function HouseCard({ house, isAdmin = false, onDelete, onEdit }) 
             <div className="flex items-center gap-2">
               <Link
                 to={`/maisons/${house.id}`}
-                className="flex-1 h-11 bg-white text-black rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 shadow-xl hover:text-white"
-                style={{ '--hover-bg': primaryRed }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = primaryRed}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'white'}
+                className="flex-1 h-11 bg-white text-black rounded-2xl flex items-center justify-center gap-2 text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 shadow-xl hover:bg-[#C3091C] hover:text-white"
               >
                 DÉTAILS <FiArrowUpRight size={14} />
               </Link>
 
               <button
                 onClick={handleToggleFavorite}
-                className="w-11 h-11 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-2xl flex items-center justify-center hover:bg-white transition-all shrink-0"
-                onMouseEnter={(e) => e.target.style.color = primaryRed}
-                onMouseLeave={(e) => e.target.style.color = isFavorite ? primaryRed : 'white'}
+                className={`w-11 h-11 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center transition-all shrink-0 hover:bg-white hover:text-[#C3091C] ${isFavorite ? 'bg-white text-[#C3091C]' : 'bg-white/10 text-white'}`}
               >
-                <FiHeart size={18} style={{ color: isFavorite ? primaryRed : 'white' }} />
+                <FiHeart size={18} fill={isFavorite ? "currentColor" : "transparent"} />
               </button>
             </div>
           )}
