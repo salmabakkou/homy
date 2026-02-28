@@ -3,7 +3,6 @@ import { Toaster } from 'react-hot-toast';
 
 // Layouts
 import UserLayout from './layouts/UserLayout';
-import AdminLayout from './layouts/AdminLayout';
 
 // User Pages
 import Home from "./pages/Home";
