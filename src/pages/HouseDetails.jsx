@@ -78,6 +78,16 @@ export default function HouseDetails() {
   const currentStatus = activeReservation ? 'reserved' : 'available';
   const displayReservedTo = activeReservation ? activeReservation.to : null;
 
+  const handleBooking = () => {
+    const userEmail = localStorage.getItem("user_email");
+    if (!userEmail) {
+      toast.error("Veuillez vous connecter pour effectuer une réservation");
+      navigate("/admin/login");
+      return;
+    }
+    navigate(`/checkout/${house.id}`);
+  };
+
   return (
     <div className="bg-[#FDFCF9] min-h-screen pb-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-10">
@@ -156,7 +166,7 @@ export default function HouseDetails() {
           <div className="flex flex-col items-center md:items-end gap-2 w-full md:w-auto">
             {currentStatus === 'available' ? (
               <button
-                onClick={() => navigate(`/checkout/${house.id}`)}
+                onClick={handleBooking}
                 className="bg-[#C3091C] text-white px-10 py-5 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] shadow-lg hover:bg-black transition-all duration-500 active:scale-95 w-full md:w-auto"
               >
                 Réserver maintenant

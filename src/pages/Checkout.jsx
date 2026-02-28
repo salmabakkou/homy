@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { addReservationThunk } from "../store/reservationsSlice";
 import { updateHouseThunk } from "../store/housesSlice";
 import toast from "react-hot-toast";
@@ -26,9 +26,17 @@ export default function Checkout() {
     to: "",
     guests: "1 Adulte",
     fullName: "",
-    email: "",
+    email: localStorage.getItem("user_email") || "",
     phone: "",
   });
+
+  useEffect(() => {
+    const userEmail = localStorage.getItem("user_email");
+    if (!userEmail) {
+      toast.error("Veuillez vous connecter pour accéder au paiement");
+      navigate("/admin/login");
+    }
+  }, [navigate]);
 
   const [errors, setErrors] = useState({});
 

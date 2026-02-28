@@ -39,6 +39,8 @@ export default function App() {
             textTransform: 'uppercase',
             letterSpacing: '0.2em',
             boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
+            whiteSpace: 'nowrap',
+            maxWidth: 'none',
           },
           success: {
             icon: null,
