@@ -247,7 +247,7 @@ function ProximiteSection({ address, city }) {
         const prompt = `Tu es un expert local au Maroc. Localisation : "${address}${city ? `, ${city}` : ""}". Retourne UNIQUEMENT un JSON valide : {"categories": [{"title": "Nom catégorie", "items": [{"name": "Nom réel", "distance": "X km", "description": "Description courte utile"}]}]}`;
 
         const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
