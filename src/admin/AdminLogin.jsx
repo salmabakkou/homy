@@ -3,7 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { FiMail, FiLock, FiArrowLeft } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { useDispatch } from "react-redux";
-import { syncWishlist } from "../store/wishlistSlice";
 import logo from "../assets/logo.png";
 
 export default function AdminLogin() {
@@ -65,13 +64,11 @@ export default function AdminLogin() {
     ) {
       localStorage.setItem("role", "admin");
       localStorage.setItem("user_email", formData.email);
-      dispatch(syncWishlist());
       toast.success("Connexion réussie");
       navigate("/admin");
     } else {
       localStorage.setItem("role", "user");
       localStorage.setItem("user_email", formData.email);
-      dispatch(syncWishlist());
       toast.success("Connexion réussie");
       navigate("/");
     }

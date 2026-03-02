@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import reducer, { addFavorite, removeFavorite, clearWishlist } from './wishlistSlice';
+import reducer, { addFavorite, removeFavorite } from './wishlistSlice';
 
 describe('wishlistSlice reducer', () => {
     const initialState = {
@@ -41,9 +41,4 @@ describe('wishlistSlice reducer', () => {
         expect(nextState.favorites).toHaveLength(0);
     });
 
-    it('devrait vider la wishlist', () => {
-        const stateWithItems = { favorites: [{ id: 1 }, { id: 2 }] };
-        const nextState = reducer(stateWithItems, clearWishlist());
-        expect(nextState.favorites).toHaveLength(0);
-    });
 });

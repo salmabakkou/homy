@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { fetchHouses } from "../store/housesSlice";
 import { fetchReservations } from "../store/reservationsSlice";
+import axios from "axios";
 import {
   FiMapPin,
   FiChevronLeft,
@@ -246,21 +247,14 @@ function ProximiteSection({ address, city }) {
 
         const prompt = `Tu es un expert local au Maroc. Localisation : "${address}${city ? `, ${city}` : ""}". Retourne UNIQUEMENT un JSON valide : {"categories": [{"title": "Nom catégorie", "items": [{"name": "Nom réel", "distance": "X km", "description": "Description courte utile"}]}]}`;
 
-        const res = await fetch(
+        const res = await axios.post(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
           {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }]
-            })
+            contents: [{ parts: [{ text: prompt }] }]
           }
         );
 
-        if (!res.ok) throw new Error(`Erreur API (${res.status})`);
-
-        const result = await res.json();
-        const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        const text = res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (!text) throw new Error("Réponse vide");
 
         const cleaned = text.replace(/```json/g, "").replace(/```/g, "").trim();

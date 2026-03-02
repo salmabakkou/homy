@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useState, useMemo, useEffect } from "react";
 import { addReservationThunk } from "../store/reservationsSlice";
 import { updateHouseThunk } from "../store/housesSlice";
+import axios from "axios";
 import toast from "react-hot-toast";
 import {
   FiCalendar,
@@ -99,18 +100,8 @@ export default function Checkout() {
     };
 
     try {
-      // ✅ Envoi vers n8n
-      const response = await fetch(import.meta.env.VITE_N8N_CHECK, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(reservationData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur webhook");
-      }
+      // ✅ Envoi vers n8n via Axios direct
+      await axios.post(import.meta.env.VITE_N8N_CHECK, reservationData);
 
       // ✅ Enregistrer la réservation (MockAPI)
       await dispatch(addReservationThunk(reservationData)).unwrap();
